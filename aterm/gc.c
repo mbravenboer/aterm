@@ -23,8 +23,6 @@
 
 /*{{{  global variables */
 
-char gc_id[] = "$Id: gc.c 23071 2007-07-02 10:06:17Z eriks $";
-
 static ATerm *stackBot = NULL;
 
 #define PRINT_GC_TIME           1
@@ -59,22 +57,12 @@ int old_increase_rate_ratio;
 
 ATbool at_mark_young;
 
-/*}}}  */
-
-#ifdef WIN32
-#define VOIDCDECL void __cdecl
-#else
-#define VOIDCDECL void
-#endif
-
 /*{{{  local functions */
 
 void major_sweep_phase_old();
 void major_sweep_phase_young();
 void minor_sweep_phase_young();
 void check_unmarked_block(unsigned int blocks);
-
-/*}}}  */
 
 /*{{{  void AT_initGC(int argc, char *argv[], ATerm *bottomOfStack) */
 
@@ -84,7 +72,7 @@ void AT_initGC(int argc, char *argv[], ATerm *bottomOfStack)
 
   stackBot = bottomOfStack;
   gc_f = stderr;
-  
+
   for(i=1; i<argc; i++) {
     if(streq(argv[i], "-at-print-gc-time"))
       flags |= PRINT_GC_TIME;
@@ -122,10 +110,7 @@ void AT_setBottomOfStack(ATerm *bottomOfStack)
 
 ATerm *stack_top()
 {
-  ATerm topOfStack;
-  ATerm *top = &topOfStack;
-
-  return top;
+    return __builtin_frame_address(0);
 }
 
 /*}}}  */
@@ -161,7 +146,7 @@ static void mark_memory(ATerm *start, ATerm *stop)
 /*}}}  */
 /*{{{  static void mark_memory_young(ATerm *start, ATerm *stop)  */
 
-static void mark_memory_young(ATerm *start, ATerm *stop) 
+static void mark_memory_young(ATerm *start, ATerm *stop)
 {
   char *ptr;
   ATerm *cur, real_term;
@@ -204,10 +189,7 @@ void ATmarkArray(ATerm *start, int size)
   }
 }
 
-
-/*{{{  VOIDCDECL mark_phase() */
-
-VOIDCDECL mark_phase()
+void mark_phase()
 {
   unsigned int i,j;
   unsigned long stack_size;
@@ -216,58 +198,7 @@ VOIDCDECL mark_phase()
   ProtEntry *prot;
   ATprotected_block pblock;
 
-#ifdef WIN32
-
-  unsigned int r_eax, r_ebx, r_ecx, r_edx, \
-    r_esi, r_edi, r_esp, r_ebp;
-  ATerm reg[8], real_term;
-
-  __asm {
-      /* Get the registers into local variables to check them
-         for aterms later. */
-    mov r_eax, eax
-      mov r_ebx, ebx
-      mov r_ecx, ecx
-      mov r_edx, edx
-      mov r_esi, esi
-      mov r_edi, edi
-      mov r_esp, esp
-      mov r_ebp, ebp
-      }
-    /* Put the register-values into an array */
-  reg[0] = (ATerm) r_eax;
-  reg[1] = (ATerm) r_ebx;
-  reg[2] = (ATerm) r_ecx;
-  reg[3] = (ATerm) r_edx;
-  reg[4] = (ATerm) r_esi;
-  reg[5] = (ATerm) r_edi;
-  reg[6] = (ATerm) r_esp;
-  reg[7] = (ATerm) r_ebp;
-
-  for(i=0; i<8; i++) {
-    real_term = AT_isInsideValidTerm(reg[i]);
-    if (real_term != NULL) {
-      AT_markTerm(real_term);
-    }
-    if (AT_isValidSymbol((Symbol)reg[i])) {
-      AT_markSymbol((Symbol)reg[i]);
-    }
-  }
-
-    /* The register variables are on the stack aswell
-       I set them to zero so they won't be processed again when
-       the stack is traversed. The reg-array is also in the stack
-       but that will be adjusted later */
-  r_eax = 0;
-  r_ebx = 0;
-  r_ecx = 0;
-  r_edx = 0;
-  r_esi = 0;
-  r_edi = 0;
-  r_esp = 0;
-  r_ebp = 0;
-
-#else
+  _unused(stack_size);
   jmp_buf env;
 
   /* Traverse possible register variables */
@@ -276,15 +207,20 @@ VOIDCDECL mark_phase()
   start = (ATerm *)((char *)env);
   stop  = ((ATerm *)(((char *)env) + sizeof(jmp_buf)));
   mark_memory(start, stop);
-#endif
 
   stackTop = stack_top();
 
   start = MIN(stackTop, stackBot);
   stop  = MAX(stackTop, stackBot);
 
-  stack_size = stop-start;
+  stack_size = stop - start;
   STATS(stack_depth, stack_size);
+
+  fprintf(stdout,"stackTop = %p\n", stackTop);
+  fprintf(stdout,"stackBot = %p\n", stackBot);
+
+  fprintf(stdout,"start = %p\n", start);
+  fprintf(stdout,"stop = %p\n", stop);
 
   mark_memory(start, stop);
 
@@ -303,12 +239,12 @@ VOIDCDECL mark_phase()
   for (prot=at_prot_memory; prot != NULL; prot=prot->next) {
     mark_memory((ATerm *)prot->start, (ATerm *)(((void *)prot->start) + prot->size));
   }
-  
+
   for (pblock=protected_blocks; pblock != NULL; pblock=pblock->next) {
     if (pblock->protsize>0)
       mark_memory(pblock->term, &pblock->term[pblock->protsize]);
   }
-  
+
   at_mark_young = ATfalse;
   for (i=0; i<at_prot_functions_count; i++)
   {
@@ -323,10 +259,7 @@ VOIDCDECL mark_phase()
   }
 }
 
-/*}}}  */
-/*{{{  VOIDCDECL mark_phase_young()  */
-
-VOIDCDECL mark_phase_young() 
+void mark_phase_young()
 {
   unsigned int i,j;
   unsigned long stack_size;
@@ -335,73 +268,22 @@ VOIDCDECL mark_phase_young()
   ProtEntry *prot;
   ATprotected_block pblock;
 
-#ifdef WIN32
+  _unused(stack_size);
 
-  unsigned int r_eax, r_ebx, r_ecx, r_edx, \
-    r_esi, r_edi, r_esp, r_ebp;
-  ATerm reg[8], real_term;
-
-  __asm {
-      /* Get the registers into local variables to check them
-         for aterms later. */
-    mov r_eax, eax
-      mov r_ebx, ebx
-      mov r_ecx, ecx
-      mov r_edx, edx
-      mov r_esi, esi
-      mov r_edi, edi
-      mov r_esp, esp
-      mov r_ebp, ebp
-      }
-    /* Put the register-values into an array */
-  reg[0] = (ATerm) r_eax;
-  reg[1] = (ATerm) r_ebx;
-  reg[2] = (ATerm) r_ecx;
-  reg[3] = (ATerm) r_edx;
-  reg[4] = (ATerm) r_esi;
-  reg[5] = (ATerm) r_edi;
-  reg[6] = (ATerm) r_esp;
-  reg[7] = (ATerm) r_ebp;
-
-  for(i=0; i<8; i++) {
-    real_term = AT_isInsideValidTerm(reg[i]);
-    if (real_term != NULL) {
-      AT_markTerm_young(real_term);
-    }
-    if (AT_isValidSymbol((Symbol)reg[i])) {
-       AT_markSymbol_young((Symbol)reg[i]);
-    }
-  }
-
-    /* The register variables are on the stack aswell
-       I set them to zero so they won't be processed again when
-       the stack is traversed. The reg-array is also in the stack
-       but that will be adjusted later */
-  r_eax = 0;
-  r_ebx = 0;
-  r_ecx = 0;
-  r_edx = 0;
-  r_esi = 0;
-  r_edi = 0;
-  r_esp = 0;
-  r_ebp = 0;
-
-#else
   jmp_buf env;
 
-    /* Traverse possible register variables */
+  /* Traverse possible register variables */
   setjmp(env);
 
   start = (ATerm *)((char *)env);
   stop  = ((ATerm *)(((char *)env) + sizeof(jmp_buf)));
   mark_memory_young(start, stop);
-#endif
 
   stackTop = stack_top();
   start = MIN(stackTop, stackBot);
   stop  = MAX(stackTop, stackBot);
 
-  stack_size = stop-start;
+  stack_size = stop - start;
   STATS(stack_depth, stack_size);
 
   mark_memory_young(start, stop);
@@ -421,18 +303,18 @@ VOIDCDECL mark_phase_young()
   for (prot=at_prot_memory; prot != NULL; prot=prot->next) {
     mark_memory_young((ATerm *)prot->start, (ATerm *)(((void *)prot->start) + prot->size));
   }
-  
+
   for (pblock=protected_blocks; pblock != NULL; pblock=pblock->next) {
     if (pblock->protsize>0)
       mark_memory_young(pblock->term, &pblock->term[pblock->protsize]);
   }
-  
+
   at_mark_young = ATtrue;
   for (i=0; i<at_prot_functions_count; i++)
   {
     at_prot_functions[i]();
   }
-    
+
   AT_markProtectedSymbols_young();
 
    /* Mark 'parked' symbol */
@@ -442,8 +324,6 @@ VOIDCDECL mark_phase_young()
   }
 }
 
-/*}}}  */
-
 #ifdef NDEBUG
 #define CHECK_UNMARKED_BLOCK(blocks)
 #else
@@ -452,7 +332,7 @@ VOIDCDECL mark_phase_young()
 
 /*{{{  void sweep_phase()  */
 
-void sweep_phase() 
+void sweep_phase()
 {
   int size;
 
@@ -473,7 +353,7 @@ void sweep_phase()
 /*}}}  */
 /*{{{  void AT_init_gc_parameters(ATbool low_memory)  */
 
-void AT_init_gc_parameters(ATbool low_memory) 
+void AT_init_gc_parameters(ATbool low_memory)
 {
   if(low_memory) {
     gc_min_number_of_blocks = 2;
@@ -503,8 +383,8 @@ void AT_init_gc_parameters(ATbool low_memory)
 
 /*{{{  static void reclaim_empty_block(Block **blocks, int size, Block *removed_block, Block *prev_block)  */
 
-static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_block, Block *prev_block) 
-{ 
+static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_block, Block *prev_block)
+{
   TermInfo* ti = &terminfo[size];
 
   ti->nb_reclaimed_blocks_during_last_gc++;
@@ -516,7 +396,7 @@ static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_bl
      * remove the block from terminfo[size].at_blocks[AT_BLOCK]
      *
      */
-    
+
 #ifdef GC_VERBOSE
   fprintf(stdout,"block %x is empty\n",(unsigned int)removed_block);
 #endif
@@ -542,7 +422,7 @@ static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_bl
   removed_block->next_by_size = at_freeblocklist;
   at_freeblocklist = removed_block;
   at_freeblocklist_size++;
-        
+
   /*
    * Step 3:
    *
@@ -554,9 +434,9 @@ static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_bl
     int idx, next_idx;
     Block *cur;
     Block *prev = NULL;
-          
+
     assert(removed_block != NULL);
-          
+
     idx = ADDR_TO_BLOCK_IDX(removed_block);
     next_idx = (idx+1)%BLOCK_TABLE_SIZE;
     for(cur=block_table[idx].first_after; cur ; prev=cur, cur=cur->next_after) {
@@ -575,7 +455,7 @@ static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_bl
       prev->next_after  = removed_block->next_after;
       prev->next_before = removed_block->next_before;
     }
-          
+
     at_freeblocklist_size--;
     at_freeblocklist = at_freeblocklist->next_by_size;
 #ifdef GC_VERBOSE
@@ -588,7 +468,7 @@ static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_bl
 /*}}}  */
 /*{{{  static void promote_block_to_old(int size, Block *block, Block *prev_block)  */
 
-static void promote_block_to_old(int size, Block *block, Block *prev_block) 
+static void promote_block_to_old(int size, Block *block, Block *prev_block)
 {
   TermInfo* ti = &terminfo[size];
 
@@ -601,7 +481,7 @@ static void promote_block_to_old(int size, Block *block, Block *prev_block)
     if(ti->at_blocks[AT_BLOCK]) {
       ti->top_at_blocks = ti->at_blocks[AT_BLOCK]->end;
     }
-   
+
   } else {
     prev_block->next_by_size = block->next_by_size;
   }
@@ -612,10 +492,10 @@ static void promote_block_to_old(int size, Block *block, Block *prev_block)
 /*}}}  */
 /*{{{  static void promote_block_to_young(int size, Block *block, Block *prev_block)  */
 
-static void promote_block_to_young(int size, Block *block, Block *prev_block) 
+static void promote_block_to_young(int size, Block *block, Block *prev_block)
 {
   TermInfo* ti = &terminfo[size];
-	
+
 #ifdef GC_VERBOSE
   printf("move block %x to young_blocks\n",(unsigned int)block);
 #endif
@@ -640,10 +520,10 @@ static void promote_block_to_young(int size, Block *block, Block *prev_block)
 
 /*{{{  void check_unmarked_block(Block **blocks)  */
 
-void check_unmarked_block(unsigned int blocks) 
+void check_unmarked_block(unsigned int blocks)
 {
   int size;
-  
+
   for(size=MIN_TERM_SIZE; size<AT_getMaxTermSize(); size++) {
     Block *block = terminfo[size].at_blocks[blocks];
     header_type *end = NULL;
@@ -653,9 +533,9 @@ void check_unmarked_block(unsigned int blocks)
     } else {
       if(block) {
         end = block->end;
-      } 
+      }
     }
-    
+
     while(block) {
       header_type *cur;
       for(cur=block->data ; cur<end ; cur+=size) {
@@ -672,7 +552,7 @@ void check_unmarked_block(unsigned int blocks)
         if(blocks==AT_OLD_BLOCK) {
           assert(GET_TYPE(t->header)==AT_FREE || IS_OLD(t->header));
         }
-        
+
         assert(!IS_MARKED(t->header));
       }
       block = block->next_by_size;
@@ -687,7 +567,7 @@ void check_unmarked_block(unsigned int blocks)
 
 /*{{{  void major_sweep_phase_old()  */
 
-void major_sweep_phase_old() 
+void major_sweep_phase_old()
 {
   int size, perc;
   int reclaiming = 0;
@@ -747,9 +627,9 @@ void major_sweep_phase_old()
 	}
       }
       assert(alive_in_block + dead_in_block + free_in_block == capacity);
-      
+
       next_block = block->next_by_size;
-      
+
 #ifndef NDEBUG
       if(empty) {
         for(cur=block->data; cur<block->end; cur+=size) {
@@ -757,7 +637,7 @@ void major_sweep_phase_old()
         }
       }
 #endif
-      
+
       if(empty) {
           /* DO NOT RESTORE THE FREE LIST: free cells have not been inserted*/
           /* terminfo[size].at_freelist = old_freelist;*/
@@ -771,7 +651,7 @@ void major_sweep_phase_old()
         old_bytes_in_young_blocks_after_last_major += (alive_in_block*SIZE_TO_BYTES(size));
       } else {
         old_bytes_in_old_blocks_after_last_major += (alive_in_block*SIZE_TO_BYTES(size));
-        
+
         /* DO NOT FORGET THIS LINE*/
         /* update the previous block*/
         prev_block = block;
@@ -791,7 +671,7 @@ void major_sweep_phase_old()
 /*}}}  */
 /*{{{  void major_sweep_phase_young()  */
 
-void major_sweep_phase_young() 
+void major_sweep_phase_young()
 {
   int perc;
   int reclaiming = 0;
@@ -799,7 +679,7 @@ void major_sweep_phase_young()
   int size;
 
   old_bytes_in_young_blocks_since_last_major = 0;
-  
+
   for(size=MIN_TERM_SIZE; size<AT_getMaxTermSize(); size++) {
     Block *prev_block = NULL;
     Block *next_block;
@@ -818,7 +698,7 @@ void major_sweep_phase_young()
       int young_in_block = 0;
       int capacity = (end-(block->data))/size;
       header_type *cur;
-      
+
       assert(block->size == size);
 
       old_freelist = ti->at_freelist;
@@ -858,7 +738,7 @@ void major_sweep_phase_young()
                 t->header = FREE_HEADER;
                 t->aterm.next = ti->at_freelist;
                 ti->at_freelist = t;
-                
+
                 dead_in_block++;
                 break;
               default:
@@ -867,7 +747,7 @@ void major_sweep_phase_young()
 	}
       }
       assert(alive_in_block + dead_in_block + free_in_block == capacity);
-      
+
       next_block = block->next_by_size;
 
 #ifndef NDEBUG
@@ -881,7 +761,7 @@ void major_sweep_phase_young()
 #ifdef GC_VERBOSE
         /*fprintf(stderr,"old_cell_in_young_block ratio = %d\n",100*old_in_block/capacity);*/
 #endif
-       
+
       if(end==block->end && empty) {
 #ifdef GC_VERBOSE
         fprintf(stderr,"MAJOR YOUNG: reclaim empty block %p\n",block);
@@ -923,12 +803,12 @@ void major_sweep_phase_young()
     if(ti->at_freelist) {
       ATerm data;
       for(data = ti->at_freelist ; data ; data=data->aterm.next) {
-        assert(EQUAL_HEADER(data->header,FREE_HEADER)); 
-        assert(ATgetType(data) == AT_FREE);   
-      } 
+        assert(EQUAL_HEADER(data->header,FREE_HEADER));
+        assert(ATgetType(data) == AT_FREE);
+      }
     }
 #endif
-    
+
   }
   if(alive) {
     perc = (100*reclaiming)/alive;
@@ -939,14 +819,14 @@ void major_sweep_phase_young()
 /*}}}  */
 /*{{{  void minor_sweep_phase_young()  */
 
-void minor_sweep_phase_young() 
+void minor_sweep_phase_young()
 {
   int size, perc;
   int reclaiming = 0;
   int alive = 0;
 
   old_bytes_in_young_blocks_since_last_major = 0;
-  
+
   for(size=MIN_TERM_SIZE; size<AT_getMaxTermSize(); size++) {
     Block *prev_block = NULL;
     Block *next_block;
@@ -958,7 +838,7 @@ void minor_sweep_phase_young()
 
       /* empty the freelist*/
     ti->at_freelist = NULL;
-        
+
     while(block) {
         /* set empty = 0 to avoid recycling*/
       int empty = 1;
@@ -968,9 +848,9 @@ void minor_sweep_phase_young()
       int old_in_block  = 0;
       int capacity = (end-(block->data))/size;
       header_type *cur;
-      
+
       assert(block->size == size);
-      
+
       old_freelist = ti->at_freelist;
       for(cur=block->data ; cur<end ; cur+=size) {
 	ATerm t = (ATerm)cur;
@@ -1002,7 +882,7 @@ void minor_sweep_phase_young()
                 t->header = FREE_HEADER;
                 t->aterm.next   = ti->at_freelist;
                 ti->at_freelist = t;
-                
+
                 dead_in_block++;
                 break;
               case AT_SYMBOL:
@@ -1035,7 +915,7 @@ void minor_sweep_phase_young()
       if(IS_FROZEN(block)) {
         ti->at_freelist = old_freelist;
       }
-      
+
        /* TODO: create freeList Old*/
       if(0 && empty) {
         ti->at_freelist = old_freelist;
@@ -1063,12 +943,12 @@ void minor_sweep_phase_young()
         if(!EQUAL_HEADER(data->header,FREE_HEADER)) {
           fprintf(stderr,"data = %p header = %x\n",data,(unsigned int) data->header);
         }
-        assert(EQUAL_HEADER(data->header,FREE_HEADER)); 
-        assert(ATgetType(data) == AT_FREE);   
+        assert(EQUAL_HEADER(data->header,FREE_HEADER));
+        assert(ATgetType(data) == AT_FREE);
       }
     }
 #endif
-    
+
   }
   if(alive) {
     perc = (100*reclaiming)/alive;
@@ -1079,7 +959,7 @@ void minor_sweep_phase_young()
 /*}}}  */
 
 /* The timing/STATS parts haven't been tested yet (on NT)
- * but without the info things seem to work fine 
+ * but without the info things seem to work fine
  */
 #ifdef WIN32
 /*{{{  void AT_collect() */
@@ -1179,7 +1059,7 @@ void AT_collect()
     ti->nb_reclaimed_blocks_during_last_gc=0;
     ti->nb_reclaimed_cells_during_last_gc=0;
   }
-  
+
   at_gc_count++;
   if (!silent)
   {
@@ -1195,7 +1075,7 @@ void AT_collect()
   STATS(mark_time, user);
 
   sweep_phase();
-  
+
   times(&sweep);
   user = sweep.tms_utime - mark.tms_utime;
   STATS(sweep_time, user);
@@ -1214,15 +1094,17 @@ void AT_collect_minor()
   clock_t user;
   FILE *file = gc_f;
   int size;
-  
-    /* snapshop*/
+
+  _unused(user); // stats only
+
+    /* snapshop */
   for(size=MIN_TERM_SIZE; size<AT_getMaxTermSize(); size++) {
     TermInfo* ti = &terminfo[size];
     ti->nb_live_blocks_before_last_gc = ti->at_nrblocks;
     ti->nb_reclaimed_blocks_during_last_gc=0;
     ti->nb_reclaimed_cells_during_last_gc=0;
   }
-  
+
   at_gc_count++;
   if (!silent)
   {
@@ -1267,17 +1149,17 @@ void AT_cleanupGC()
     fprintf(file, "(all statistics are printed min/avg/max)\n");
     if(at_gc_count > 0) {
       if(nr_marks > 0) {
-	fprintf(file, "  mark stack needed: %d/%d/%d (%d marks)\n", 
+	fprintf(file, "  mark stack needed: %d/%d/%d (%d marks)\n",
 		mark_stats[IDX_MIN],
-                mark_stats[IDX_TOTAL]/nr_marks, 
+                mark_stats[IDX_TOTAL]/nr_marks,
 		mark_stats[IDX_MAX], nr_marks);
       }
-      fprintf(file, "  marking  took %.2f/%.2f/%.2f seconds, total: %.2f\n", 
+      fprintf(file, "  marking  took %.2f/%.2f/%.2f seconds, total: %.2f\n",
 	      ((double)mark_time[IDX_MIN])/(double)CLOCK_DIVISOR,
 	      (((double)mark_time[IDX_TOTAL])/(double)at_gc_count)/(double)CLOCK_DIVISOR,
 	      ((double)mark_time[IDX_MAX])/(double)CLOCK_DIVISOR,
 	      ((double)mark_time[IDX_TOTAL])/(double)CLOCK_DIVISOR);
-      fprintf(file, "  sweeping took %.2f/%.2f/%.2f seconds, total: %.2f\n", 
+      fprintf(file, "  sweeping took %.2f/%.2f/%.2f seconds, total: %.2f\n",
 	      ((double)sweep_time[IDX_MIN])/(double)CLOCK_DIVISOR,
 	      (((double)sweep_time[IDX_TOTAL])/(double)at_gc_count)/(double)CLOCK_DIVISOR,
 	      ((double)sweep_time[IDX_MAX])/(double)CLOCK_DIVISOR,
@@ -1288,11 +1170,11 @@ void AT_cleanupGC()
 #endif
 #endif
   }
-  
+
   if(flags & PRINT_GC_STATS) {
     if(at_gc_count > 0) {
-      fprintf(file, "\n  stack depth: %d/%d/%d words\n", 
-	      stack_depth[IDX_MIN],  
+      fprintf(file, "\n  stack depth: %d/%d/%d words\n",
+	      stack_depth[IDX_MIN],
 	      stack_depth[IDX_TOTAL]/at_gc_count,
 	      stack_depth[IDX_MAX]);
       fprintf(file, "\n  reclamation percentage: %d/%d/%d\n",
