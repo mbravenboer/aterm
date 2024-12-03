@@ -30,8 +30,6 @@
 /*}}}  */
 /*{{{  globals */
 
-char afun_id[] = "$Id: afun.c 23071 2007-07-02 10:06:17Z eriks $";
-
 static unsigned int table_class = INITIAL_AFUN_TABLE_CLASS;
 static unsigned long table_size  = AT_TABLE_SIZE(INITIAL_AFUN_TABLE_CLASS);
 static unsigned long table_mask  = AT_TABLE_MASK(INITIAL_AFUN_TABLE_CLASS);
@@ -124,7 +122,7 @@ void AT_initSymbol(int argc, char *argv[])
       table_size  = AT_TABLE_SIZE(table_class);
       table_mask  = AT_TABLE_MASK(table_class);
     } else if(streq(argv[i], "-at-help")) {
-      fprintf(stderr, "    %-20s: initial afun table class " 
+      fprintf(stderr, "    %-20s: initial afun table class "
 	      "(default=%d)\n",	AFUN_TABLE_OPT " <class>", table_class);
     }
   }
@@ -141,19 +139,19 @@ void AT_initSymbol(int argc, char *argv[])
     ATerror("AT_initSymbol: cannot allocate %ld lookup-entries.\n",
 	    table_size);
   }
-  
+
   first_free = 0;
   for (sym = 0; sym < table_size; sym++) {
     at_lookup_table[sym] = (SymEntry) SYM_SET_NEXT_FREE(sym+1);
   }
   at_lookup_table[table_size-1] = (SymEntry) SYM_SET_NEXT_FREE(-1);		/* Sentinel */
 
-  protected_symbols = (Symbol *)AT_calloc(INITIAL_PROTECTED_SYMBOLS, 
+  protected_symbols = (Symbol *)AT_calloc(INITIAL_PROTECTED_SYMBOLS,
 				       sizeof(Symbol));
   if(!protected_symbols) {
     ATerror("AT_initSymbol: cannot allocate initial protection buffer.\n");
   }
-	
+
   sym = ATmakeAFun("<int>", 0, ATfalse);
   assert(sym == AS_INT);
   ATprotectAFun(sym);
@@ -322,7 +320,7 @@ ShortHashNumber AT_hashSymbol(const char *name, int arity) {
    register ub4 a,b,c,len;
    ub1 *k=name;
    ub4 length = strlen(name);
-   
+
    /* Set up the internal state */
    len = length;
    a = b = 0x9e3779b9;  /* the golden ratio; an arbitrary value */
@@ -368,7 +366,7 @@ ShortHashNumber AT_hashSymbol(const char *name, int arity)
 
   for(hnr = arity*3; *walk; walk++)
     hnr = 251 * hnr + *walk;
-  
+
   return hnr*MAGIC_PRIME;
 }
 #endif
@@ -384,7 +382,7 @@ Symbol ATmakeSymbol(const char *name, int arity, ATbool quoted)
   SymEntry cur;
 
   /*ATwarning("ATmakeSymbol: [%s], %d, %d\n", name, arity, quoted);*/
-  
+
   if(arity >= MAX_ARITY) {
     ATabort("cannot handle symbols with arity %d (max=%d)\n",
 	    arity, MAX_ARITY-1);
@@ -395,7 +393,7 @@ Symbol ATmakeSymbol(const char *name, int arity, ATbool quoted)
   while (cur && (!EQUAL_HEADER(cur->header,header) || !streq(cur->name, name))) {
     cur = cur->next;
   }
-  
+
   if (cur == NULL) {
     Symbol free_entry;
 
@@ -405,7 +403,7 @@ Symbol ATmakeSymbol(const char *name, int arity, ATbool quoted)
 
       /* Hashtable size changed, so recalculate hashnumber */
       hnr = AT_hashSymbol(name, arity) & table_mask;
-     
+
       free_entry = first_free;
       if (free_entry == -1) {
 	ATerror("AT_initSymbol: out of symbol slots!\n");
@@ -432,7 +430,7 @@ Symbol ATmakeSymbol(const char *name, int arity, ATbool quoted)
   }
 
   /*ATwarning("AT_makeAFun(%p)\tid = %d\n", cur, cur->id);*/
-  
+
   return cur->id;
 }
 
@@ -448,31 +446,31 @@ void AT_freeSymbol(SymEntry sym)
   ShortHashNumber hnr;
 
   terminfo[TERM_SIZE_SYMBOL].nb_reclaimed_cells_during_last_gc++;
-  
+
   assert(sym->name);
 
   /*ATwarning("AT_freeSymbol: name: [%s], addr: %p, id: %d\n", sym->name, sym, sym->id);*/
-  
+
   /* Calculate hashnumber */
   hnr = AT_hashSymbol(sym->name, GET_LENGTH(sym->header));
   hnr &= table_mask;
-  
+
   /* Update hashtable */
   if (hash_table[hnr] == sym) {
     hash_table[hnr] = sym->next;
   } else {
     SymEntry cur, prev;
-    prev = hash_table[hnr]; 
+    prev = hash_table[hnr];
     for (cur = prev->next; cur != sym; prev = cur, cur = cur->next) {
       assert(cur != NULL);
     }
     prev->next = cur->next;
   }
-  
+
   /* Free symbol name */
   AT_free(sym->name);
   sym->name = NULL;
-  
+
   at_lookup_table[sym->id] = (SymEntry)SYM_SET_NEXT_FREE(first_free);
   first_free = sym->id;
 }
@@ -489,7 +487,7 @@ ATbool AT_findSymbol(char *name, int arity, ATbool quoted)
   header_type header = SYMBOL_HEADER(arity, quoted);
   ShortHashNumber hnr = AT_hashSymbol(name, arity) & table_mask;
   SymEntry cur;
-  
+
   if(arity >= MAX_ARITY)
     ATabort("cannot handle symbols with arity %d (max=%d)\n",
 	    arity, MAX_ARITY);
@@ -498,7 +496,7 @@ ATbool AT_findSymbol(char *name, int arity, ATbool quoted)
   cur = hash_table[hnr];
   while (cur && (!EQUAL_HEADER(cur->header,header) || !streq(cur->name, name)))
     cur = cur->next;
-  
+
   return (cur == NULL) ? ATfalse : ATtrue;
 }
 

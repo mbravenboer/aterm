@@ -112,8 +112,6 @@ typedef struct
 /*}}}  */
 /*{{{  variables */
 
-char bafio_id[] = "$Id: bafio.c 23464 2007-08-27 09:22:35Z eriks $";
-
 static int nr_unique_symbols = -1;
 static sym_read_entry *read_symbols;
 static sym_entry *sym_entries = NULL;

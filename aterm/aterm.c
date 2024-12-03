@@ -52,8 +52,6 @@
 /*}}}  */
 /*{{{  globals */
 
-char            aterm_id[] = "$Id: aterm.c 24415 2007-12-12 14:20:55Z eriks $";
-
 /* Flag to tell whether to keep quiet or not. */
 ATbool silent	  = ATtrue;
 ATbool low_memory = ATfalse;

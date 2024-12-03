@@ -62,8 +62,6 @@
 /*}}}  */
 /*{{{  globals */
 
-char memory_id[] = "$Id: memory.c 23465 2007-08-27 09:35:50Z eriks $";
-
 unsigned int maxTermSize = INITIAL_MAX_TERM_SIZE;
 
 TermInfo* terminfo = NULL;

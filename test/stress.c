@@ -42,8 +42,6 @@ char* strdup(const char* str)
 /*}}}  */
 /*{{{  globals */
 
-char stress_id[] = "$Id: stress.c 23465 2007-08-27 09:35:50Z eriks $";
-
 #ifdef ABORT_ON_PARSE_ERROR
 ATbool parse_error_encountered = ATfalse
 #endif
@@ -293,8 +291,8 @@ testAppl(void)
   apples[1] = ATmakeAppl1(symmies[1], (ATerm)apples[0]);
   apples[2] = ATmakeAppl1(symmies[1], (ATerm)apples[1]);
   apples[3] = ATmakeAppl1(symmies[1], (ATerm)apples[0]);
-  apples[4] = ATmakeAppl6(symmies[2], (ATerm)apples[0], (ATerm)apples[0], 
-			  (ATerm)apples[1], (ATerm)apples[0], 
+  apples[4] = ATmakeAppl6(symmies[2], (ATerm)apples[0], (ATerm)apples[0],
+			  (ATerm)apples[1], (ATerm)apples[0],
 			  (ATerm)apples[0], (ATerm)apples[1]);
   apples[5] = ATmakeAppl(symmies[3], apples[0], apples[1], apples[0],
 			 apples[1], apples[0], apples[1], apples[0],
@@ -334,17 +332,17 @@ void testList(void)
   list[0] = ATmakeList0();
   list[1] = ATmakeList1((ATerm)ATmakeInt(1));
   list[2] = ATmakeList2((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2));
-  list[3] = ATmakeList3((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2), 
+  list[3] = ATmakeList3((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2),
 			(ATerm)ATmakeInt(3));
-  list[4] = ATmakeList4((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2), 
+  list[4] = ATmakeList4((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2),
 			(ATerm)ATmakeInt(3), (ATerm)ATmakeInt(4));
-  list[5] = ATmakeList5((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2), 
-			(ATerm)ATmakeInt(3), (ATerm)ATmakeInt(4), 
+  list[5] = ATmakeList5((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2),
+			(ATerm)ATmakeInt(3), (ATerm)ATmakeInt(4),
 			(ATerm)ATmakeInt(5));
-  list[6] = ATmakeList6((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2), 
-			(ATerm)ATmakeInt(3), (ATerm)ATmakeInt(4), 
+  list[6] = ATmakeList6((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2),
+			(ATerm)ATmakeInt(3), (ATerm)ATmakeInt(4),
 			(ATerm)ATmakeInt(5), (ATerm)ATmakeInt(6));
-  list[7] = ATmakeList3((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2), 
+  list[7] = ATmakeList3((ATerm)ATmakeInt(1), (ATerm)ATmakeInt(2),
 			(ATerm)ATmakeInt(3));
   list[8] = ATmakeList2((ATerm)ATmakeInt(2), (ATerm)ATmakeInt(3));
 
@@ -369,9 +367,9 @@ void testList(void)
   test_assert("list-ops", 7, ATisEqual(list[2], ATgetSlice(list[2],0,2)));
   test_assert("list-ops", 8, ATisEqual(ATgetFirst(list[5]), ATmakeInt(1)));
   test_assert("list-ops", 9, ATisEqual(ATgetNext(list[3]), list[8]));
-  test_assert("list-ops",10, ATisEqual(ATinsert(list[8], 
+  test_assert("list-ops",10, ATisEqual(ATinsert(list[8],
 						(ATerm)ATmakeInt(1)), list[3]));
-  test_assert("list-ops",11, ATisEqual(ATappend(list[3], 
+  test_assert("list-ops",11, ATisEqual(ATappend(list[3],
 						(ATerm)ATmakeInt(4)), list[4]));
   list[15] = ATconcat(list[4], list[3]);
   test_assert("list-ops",12, ATgetLength(list[15]) == 7);
@@ -383,10 +381,10 @@ void testList(void)
   test_assert("list-ops",15, ATisEqual(ATelementAt(list[4], 1),
 				       (ATerm)ATmakeInt(2)));
   test_assert("list-ops",16, ATindexOf(list[4], (ATerm)ATmakeInt(2),0) == 1);
-  test_assert("list-ops",17, ATlastIndexOf(list[4], 
+  test_assert("list-ops",17, ATlastIndexOf(list[4],
 					   (ATerm)ATmakeInt(2), -1) == 1);
   test_assert("list-ops",16, ATindexOf(list[4], (ATerm)ATmakeInt(2),2) == -1);
-  test_assert("list-ops",17, ATlastIndexOf(list[4], 
+  test_assert("list-ops",17, ATlastIndexOf(list[4],
 					   (ATerm)ATmakeInt(2),0) == -1);
 
   test_assert("list-ops",18, ATisEqual(ATgetArguments(ATmakeAppl(ATmakeSymbol("f",2,ATfalse),
@@ -397,21 +395,21 @@ void testList(void)
   list[10] = (ATermList)ATreadFromString("[1,2,3,4,5]");
   list[11] = ATreplace(list[10], (ATerm)ATmakeInt(0), 2);
 
-  test_assert("list-ops", 19, ATisEqual(list[11], 
+  test_assert("list-ops", 19, ATisEqual(list[11],
 					ATreadFromString("[1, 2, 0, 4, 5]")));
 
   for(i=0; i<5; i++)
     list[11] = ATreplace(list[11], (ATerm)ATmakeInt(0), i);
 
-  test_assert("list-ops", 20, ATisEqual(list[11], 
+  test_assert("list-ops", 20, ATisEqual(list[11],
 					ATreadFromString(" [0,0,0,0,0] ")));
 
-  ATfprintf(stdout, "result of ATremoveElement: %t\n", 
+  ATfprintf(stdout, "result of ATremoveElement: %t\n",
 	    ATremoveElement((ATermList)ATparse("[1,2,3,2]"), ATparse("2")));
-  test_assert("list-ops", 21, 
+  test_assert("list-ops", 21,
 	      ATisEqual(ATremoveElement((ATermList)ATparse("[1,2,3,2]"),
 					ATparse("2")), ATparse("[1,3,2]")));
-  test_assert("list-ops", 22, 
+  test_assert("list-ops", 22,
 	      ATisEqual(ATremoveAll((ATermList)ATparse("[1,2,3,2]"),
 				    ATparse("2")), ATparse("[1,3]")));
 
@@ -572,8 +570,8 @@ testMake(void)
   sym[2] = ATmakeSymbol("echt", 3, ATfalse);
 
   test_assert("make", 6, ATisEqual(ATmake("<appl(<int>, <list>)>",
-					  "echt", 123, 
-					  ATmakeList2((ATerm)ATmakeInt(7), 
+					  "echt", 123,
+					  ATmakeList2((ATerm)ATmakeInt(7),
 						      (ATerm)ATmakeReal(7.01))),
 				   ATreadFromString("echt(123, 7, 7.01)")));
   test_assert("make", 7, ATisEqual(ATmake("<placeholder>", ATmakeInt(7)),
@@ -594,14 +592,14 @@ testMake(void)
 
   test_assert("make", 9,
 	      ATisEqual(ATmake("f(<int>,<int>,<int>,<int>,<int>,"
-			       "<int>,<int>,<int>,<int>)", 
+			       "<int>,<int>,<int>,<int>)",
 			       1, 2, 3, 4, 5, 6, 7, 8, 9),
 			ATmakeAppl(ATmakeSymbol("f", 9, ATfalse),
 				   ATmakeInt(1), ATmakeInt(2), ATmakeInt(3),
 				   ATmakeInt(4), ATmakeInt(5), ATmakeInt(6),
 				   ATmakeInt(7), ATmakeInt(8), ATmakeInt(9))));
 
-  test_assert("make", 10, ATisEqual(ATmake("[\"f\"([<list>])]", 
+  test_assert("make", 10, ATisEqual(ATmake("[\"f\"([<list>])]",
 					   ATparse("[1,2,3]")),
 				    ATparse("[\"f\"([1,2,3])]")));
 
@@ -615,7 +613,7 @@ testMake(void)
 				    ATmake("[1]{[a,a]}")));
 
   test_assert("make", 14, ATisEqual(ATparse("aap(noot,mies)"),
-				    ATmake("aap(<list>)", 
+				    ATmake("aap(<list>)",
 					   ATparse("[noot,mies]"))));
 
   fprintf(stderr, "The following two tests should generate parse errors.\n");
@@ -668,7 +666,7 @@ void testMatch(void)
   void *data;
   ATermList list;
 
-  t[0] = ATmake("f(1,3.14,<placeholder>,a,\"b\",<term>)", 
+  t[0] = ATmake("f(1,3.14,<placeholder>,a,\"b\",<term>)",
 		ATmake("type"), (ATerm)ATmakeBlob(4,strdup("abc")));
   t[1] = ATmake("[1,2,3]");
   t[2] = ATmake("f(1,2,3)");
@@ -845,7 +843,7 @@ void testGC()
 #endif
 
 
-  printf("gc tests ok.\n");	
+  printf("gc tests ok.\n");
 }
 
 /*}}}  */
@@ -928,35 +926,35 @@ void testMark()
  * Table tests devised by JFG
  */
 
-#define MAX_ELEM 50000 
+#define MAX_ELEM 50000
 
 void testTable2()
-{ 
+{
   ATermTable table;
   int i;
 
   table=ATtableCreate(2,75);
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATtablePut(table,ATmake("f(<int>)",i),ATmake("g(f(<int>),<int>)",i,i+1));
   }
 
   /* insert elements twice, as this caused previous versions
      of the hashtable to crash */
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATtablePut(table,ATmake("f(<int>)",i),ATmake("g(f(<int>),<int>)",i,i+1));
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     if (ATtableGet(table,ATmake("f(<int>)",i))==NULL)
       ATerror("Problem1\n");
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATtableRemove(table,ATmake("f(<int>)",i));
   }
 
@@ -964,7 +962,7 @@ void testTable2()
     ATerror("Problem2\n");
 
   if (ATgetLength(ATtableValues(table))!=0)
-  {    
+  {
     ATerror("Problem3\n");
   }
 
@@ -980,20 +978,20 @@ void testTable2()
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATtablePut(table,ATmake("f(<int>)",i+MAX_ELEM),
 	       ATmake("g(f(<int>),<int>)",i,i+2));
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     if (ATtableGet(table,ATmake("f(<int>)",i+MAX_ELEM))!=
 	ATmake("g(f(<int>),<int>)",i,i+2))
       ATerror("Problem5\n");
   }
 
   if (ATgetLength(ATtableKeys(table))!=MAX_ELEM)
-  { 
+  {
     ATerror("Problem6\n");
   }
 
@@ -1055,7 +1053,7 @@ void testIndexedSet()
   set=ATindexedSetCreate(2,75);
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATindexedSetPut(set,ATmake("f(<int>)",i),&new);
     if (!new) ATerror("Problem0.1");
   }
@@ -1063,19 +1061,19 @@ void testIndexedSet()
   /* insert elements twice, as this caused previous versions
      of the hashset to crash */
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATindexedSetPut(set,ATmake("f(<int>)",i),&new);
     if (new) ATerror("Problem0.2");
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     if (ATindexedSetGetIndex(set,ATmake("f(<int>)",i))<0)
       ATerror("Problem1\n");
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATindexedSetRemove(set,ATmake("f(<int>)",i));
   }
 
@@ -1089,13 +1087,13 @@ void testIndexedSet()
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     ATindexedSetPut(set,ATmake("f(<int>)",i+MAX_ELEM),&new);
     if (!new) ATerror("Problem4.5");
   }
 
   for(i=0 ; i<MAX_ELEM ; i++)
-  { 
+  {
     if (ATindexedSetGetIndex(set,ATmake("f(<int>)",i+MAX_ELEM))<0)
       ATerror("Problem5\n");
   }
@@ -1121,10 +1119,10 @@ void testIndexedSet()
 void testDictToC()
 {
   init_terms_dict();
-  test_assert("dicttoc", 1, ATisEqual(patternA, 
+  test_assert("dicttoc", 1, ATisEqual(patternA,
 				      ATparse("patroon(\"a\",<term>)")));
   test_assert("dicttoc", 2, ATisEqual(patternB, ATparse("patroon(\"b\")")));
-  test_assert("dicttoc", 3, symbolA == ATmakeAFun("A very complex symbol", 
+  test_assert("dicttoc", 3, symbolA == ATmakeAFun("A very complex symbol",
 						  3, ATtrue));
   test_assert("dicttoc", 4, symbolB == ATmakeAFun("another \"complex\" symbol",
 						  0, ATtrue));
@@ -1152,7 +1150,7 @@ void testTBLegacy()
 
 void testBaffle()
 {
-  char buf[BUFSIZ]; 
+  char buf[BUFSIZ];
   unsigned char *ptr;
   FILE *file;
   ATerm tesatint, tesatappl = ATparse("f(1,a,<abc>,[24,g]{[a,b]})");
@@ -1165,7 +1163,7 @@ void testBaffle()
     test_assert("baffle", 2, ATwriteToBinaryFile(tesatappl, file));
     fclose(file);
     file = fopen(buf, "rb");
-    tesatint = ATreadFromBinaryFile(file); 
+    tesatint = ATreadFromBinaryFile(file);
     test_assert("baffle", 3, tesatint);
     test_assert("baffle", 4, ATisEqual(tesatappl, tesatint));
     fclose(file);
@@ -1211,7 +1209,7 @@ void testTaf()
   t[3] = ATreadFromSharedString(ptr, len);
   t[4] = ATparse("<ph(<ph2>)>");
   t[5] = ATparse("[]");
-  t[6] = ATmake("h(<term>,1,2,1,3.14,[<term>,<term>,<term>],<term>)", 
+  t[6] = ATmake("h(<term>,1,2,1,3.14,[<term>,<term>,<term>],<term>)",
 		t[1], t[4],t[4], t[5], t[5]);
 
 #ifndef NO_SHARING
@@ -1297,9 +1295,9 @@ void testDiff()
 
   /*ATfprintf(stderr, "template = %t, diffs = %t\n", template, diffs);*/
 
-  test_assert("diff", 1, ATisEqual(template, 
+  test_assert("diff", 1, ATisEqual(template,
 				   ATparse("[<f(<diff-values>,3.140000)>,[<diff-lists>],<diff-types>,[e,<diff-lists>]]")));
-  test_assert("diff", 2, ATisEqual(diffs, 
+  test_assert("diff", 2, ATisEqual(diffs,
 				   ATparse("[diff(4,5),diff([],[1]),diff([a,b],7),diff([f],[])]")));
 
   printf("diff tests ok.\n");
@@ -1308,7 +1306,7 @@ void testDiff()
 /*}}}  */
 /*{{{  void testCompare()  */
 
-void testCompare() 
+void testCompare()
 {
   ATerm atappl = ATmake("f(a)");
   ATerm atint = ATmake("10");
@@ -1372,7 +1370,7 @@ void testCompare()
   test_assert("modulo", 0,  ATisEqualModuloAnnotations(atanno, atappl));
   test_assert("modulo", 1,  ATisEqualModuloAnnotations(atappl, atappl));
   test_assert("modulo", 2,  ATisEqualModuloAnnotations(atanno, atanno));
-  test_assert("modulo", 3,  
+  test_assert("modulo", 3,
 	      ATisEqualModuloAnnotations(atreal, atanno) == ATfalse);
 
   test_assert("compare-type-lt", 0,  ATcompare(atappl, atint) < 0);
@@ -1407,11 +1405,11 @@ void testCompare()
   test_assert("list-cmp", 3, ATcompare(atlist3,atlist) < 0);
   test_assert("list-cmp", 3, ATcompare(atlist4,atlist) < 0);
 
-  test_assert("placeholder-cmp", 0, 
+  test_assert("placeholder-cmp", 0,
 	      ATcompare(atplaceholder,atplaceholder) == 0);
-  test_assert("placeholder-cmp", 1, 
+  test_assert("placeholder-cmp", 1,
 	      ATcompare(atplaceholder1,atplaceholder) < 0);
-  test_assert("placeholder-cmp", 2, 
+  test_assert("placeholder-cmp", 2,
 	      ATcompare(atplaceholder2,atplaceholder) > 0);
 
   test_assert("anno-cmp", 0, ATcompare(atanno,atanno) == 0);

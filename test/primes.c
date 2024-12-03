@@ -5,8 +5,6 @@
 
 #include "aterm2.h"
 
-char primes_id[] = "$Id: primes.c 5746 2001-08-07 15:19:21Z jong $";
-
 /*{{{  ATermList generate_numbers(int max) */
 
 ATermList generate_numbers(int max)

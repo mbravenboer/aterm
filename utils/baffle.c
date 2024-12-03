@@ -22,8 +22,6 @@
 
 /*}}}  */
 
-char baffle_id[] = "$Id: baffle.c 23063 2007-07-02 08:52:17Z eriks $";
-
 /*{{{  static void usage(char *prg) */
 
 static void usage(char *prg)
@@ -36,7 +34,7 @@ static void usage(char *prg)
 	  "    -v            - Print version information\n"
 	  "    -h            - Display help\n"
 	  "    -rb, -rt, -rs, -rS - Choose between BAF, TEXT, TAF, and SAF input   (Default: autodetect)\n"
-	  "    -wb, -wt, -ws, -wS - Choose between BAF, TEXT, TAF, and SAF output  (Default: -wb)\n", 
+	  "    -wb, -wt, -ws, -wS - Choose between BAF, TEXT, TAF, and SAF output  (Default: -wb)\n",
 	  prg);
 }
 
