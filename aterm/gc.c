@@ -98,24 +98,15 @@ void AT_initGC(int argc, char *argv[], ATerm *bottomOfStack)
  * the bottomOfStack must be adjusted to point to the stack of
  * the calling thread.
  */
-/*{{{  void AT_setBottomOfStack(ATerm *bottomOfStack) */
-
 void AT_setBottomOfStack(ATerm *bottomOfStack)
 {
   stackBot = bottomOfStack;
 }
 
-/*}}}  */
-/*{{{  ATerm *stack_top() */
-
 ATerm *stack_top()
 {
     return __builtin_frame_address(0);
 }
-
-/*}}}  */
-
-/*{{{  static void mark_memory(ATerm *start, ATerm *stop) */
 
 static void mark_memory(ATerm *start, ATerm *stop)
 {
@@ -143,9 +134,6 @@ static void mark_memory(ATerm *start, ATerm *stop)
   }
 }
 
-/*}}}  */
-/*{{{  static void mark_memory_young(ATerm *start, ATerm *stop)  */
-
 static void mark_memory_young(ATerm *start, ATerm *stop)
 {
   char *ptr;
@@ -171,8 +159,6 @@ static void mark_memory_young(ATerm *start, ATerm *stop)
     }
   }
 }
-
-/*}}}  */
 
 void ATmarkTerm(ATerm t)
 {
@@ -350,9 +336,6 @@ void sweep_phase()
   CHECK_UNMARKED_BLOCK(AT_OLD_BLOCK);
 }
 
-/*}}}  */
-/*{{{  void AT_init_gc_parameters(ATbool low_memory)  */
-
 void AT_init_gc_parameters(ATbool low_memory)
 {
   if(low_memory) {
@@ -378,10 +361,6 @@ void AT_init_gc_parameters(ATbool low_memory)
 #endif
   }
 }
-
-/*}}}  */
-
-/*{{{  static void reclaim_empty_block(Block **blocks, int size, Block *removed_block, Block *prev_block)  */
 
 static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_block, Block *prev_block)
 {
@@ -465,9 +444,6 @@ static void reclaim_empty_block(unsigned int blocks, int size, Block *removed_bl
   }
 }
 
-/*}}}  */
-/*{{{  static void promote_block_to_old(int size, Block *block, Block *prev_block)  */
-
 static void promote_block_to_old(int size, Block *block, Block *prev_block)
 {
   TermInfo* ti = &terminfo[size];
@@ -488,9 +464,6 @@ static void promote_block_to_old(int size, Block *block, Block *prev_block)
   block->next_by_size = ti->at_blocks[AT_OLD_BLOCK];
   ti->at_blocks[AT_OLD_BLOCK] = block;
 }
-
-/*}}}  */
-/*{{{  static void promote_block_to_young(int size, Block *block, Block *prev_block)  */
 
 static void promote_block_to_young(int size, Block *block, Block *prev_block)
 {
@@ -515,10 +488,6 @@ static void promote_block_to_young(int size, Block *block, Block *prev_block)
     assert(ti->at_blocks[AT_BLOCK] != NULL);
   }
 }
-
-/*}}}  */
-
-/*{{{  void check_unmarked_block(Block **blocks)  */
 
 void check_unmarked_block(unsigned int blocks)
 {
@@ -562,10 +531,6 @@ void check_unmarked_block(unsigned int blocks)
     }
   }
 }
-
-/*}}}  */
-
-/*{{{  void major_sweep_phase_old()  */
 
 void major_sweep_phase_old()
 {
@@ -667,9 +632,6 @@ void major_sweep_phase_old()
     STATS(reclaim_perc, perc);
   }
 }
-
-/*}}}  */
-/*{{{  void major_sweep_phase_young()  */
 
 void major_sweep_phase_young()
 {
@@ -816,9 +778,6 @@ void major_sweep_phase_young()
   }
 }
 
-/*}}}  */
-/*{{{  void minor_sweep_phase_young()  */
-
 void minor_sweep_phase_young()
 {
   int size, perc;
@@ -956,95 +915,6 @@ void minor_sweep_phase_young()
   }
 }
 
-/*}}}  */
-
-/* The timing/STATS parts haven't been tested yet (on NT)
- * but without the info things seem to work fine
- */
-#ifdef WIN32
-/*{{{  void AT_collect() */
-
-void AT_collect()
-{
-  clock_t start, mark, sweep;
-  clock_t user;
-  FILE *file = gc_f;
-  int size;
-
-      /* snapshop*/
-  for(size=MIN_TERM_SIZE; size<AT_getMaxTermSize(); size++) {
-    TermInfo* ti = &terminfo[size];
-    ti->nb_live_blocks_before_last_gc = ti->at_nrblocks;
-    ti->nb_reclaimed_blocks_during_last_gc=0;
-    ti->nb_reclaimed_cells_during_last_gc=0;
-  }
-
-  at_gc_count++;
-  if (!silent)
-  {
-    fprintf(file, "collecting garbage..(%d)",at_gc_count);
-    fflush(file);
-  }
-  start = clock();
-  mark_phase();
-  mark = clock();
-  user = mark - start;
-  STATS(mark_time, user);
-
-  sweep_phase();
-  sweep = clock();
-  user = sweep - mark;
-  STATS(sweep_time, user);
-
-  if (!silent)
-    fprintf(file, "..\n");
-}
-
-/*}}}  */
-/*{{{  void AT_collect_minor() */
-
-void AT_collect_minor()
-{
-  clock_t start, mark, sweep;
-  clock_t user;
-  FILE *file = gc_f;
-  int size;
-
-      /* snapshop*/
-  for(size=MIN_TERM_SIZE; size<AT_getMaxTermSize(); size++) {
-    TermInfo* ti = &terminfo[size];
-    ti->nb_live_blocks_before_last_gc = ti->at_nrblocks;
-    ti->nb_reclaimed_blocks_during_last_gc=0;
-    ti->nb_reclaimed_cells_during_last_gc=0;
-  }
-
-  at_gc_count++;
-  if (!silent)
-  {
-    fprintf(file, "young collecting garbage..(%d)",at_gc_count);
-    fflush(file);
-  }
-  start = clock();
-
-  /* was minor_mark_phase_young(); this should be verified! */
-  mark_phase_young();
-  mark = clock();
-  user = mark - start;
-  STATS(mark_time, user);
-
-  minor_sweep_phase_young();
-  sweep = clock();
-  user = sweep - mark;
-  STATS(sweep_time, user);
-
-  if (!silent)
-    fprintf(file, "..\n");
-}
-
-/*}}}  */
-#else
-/*{{{  void AT_collect() */
-
 void AT_collect()
 {
   struct tms start, mark, sweep;
@@ -1084,9 +954,6 @@ void AT_collect()
     fprintf(file, "..\n");
   }
 }
-
-/*}}}  */
-/*{{{  void AT_collect_minor() */
 
 void AT_collect_minor()
 {
@@ -1133,12 +1000,7 @@ void AT_collect_minor()
     fprintf(file, "..\n");
 }
 
-/*}}}  */
-#endif
-
 #define CLOCK_DIVISOR CLOCKS_PER_SEC
-
-/*{{{  void AT_cleanupGC() */
 
 void AT_cleanupGC()
 {
@@ -1165,9 +1027,6 @@ void AT_cleanupGC()
 	      ((double)sweep_time[IDX_MAX])/(double)CLOCK_DIVISOR,
 	      ((double)sweep_time[IDX_TOTAL])/(double)CLOCK_DIVISOR);
     }
-#ifdef WIN32
-    fprintf(file, "Note: WinNT times are absolute, and might be influenced by other processes.\n");
-#endif
 #endif
   }
 
@@ -1184,6 +1043,3 @@ void AT_cleanupGC()
     }
   }
 }
-
-/*}}}  */
-
