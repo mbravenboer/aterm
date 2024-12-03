@@ -6,11 +6,8 @@
 #include <limits.h>
 #include <assert.h>
 #include <setjmp.h>
-
-#ifndef WIN32
 #include <unistd.h>
 #include <sys/times.h>
-#endif
 
 #include "_aterm.h"
 #include "afun.h"

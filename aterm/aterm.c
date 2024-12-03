@@ -6,10 +6,6 @@
 #include <string.h>
 #include <assert.h>
 
-#ifdef WIN32
-#include <fcntl.h>
-#endif
-
 #include "_aterm.h"
 #include "memory.h"
 #include "afun.h"
@@ -133,7 +129,7 @@ AT_cleanup(void)
  * the stackbottom is determined in this function.
  * This variant might work better with some compilers (gcc)
  * that optimize local variables in 'main' into global variables.
- */ 
+ */
 
 void ATinitialize(int argc, char *argv[])
 {
@@ -177,7 +173,7 @@ ATinit(int argc, char *argv[], ATerm * bottomOfStack)
 
   AT_init_gc_parameters(low_memory);
 
-  
+
   if (!silent) {
     ATfprintf(stderr, "  ATerm Library, version %s, built: %s\n",
 	      at_version, at_date);
@@ -246,18 +242,6 @@ ATinit(int argc, char *argv[], ATerm * bottomOfStack)
   AT_initBafIO(argc, argv);
 
   /*}}}  */
-
-#ifdef WIN32
-  if (_setmode(_fileno(stdin), _O_BINARY) == -1) {
-    perror("Warning: Cannot set inputstream to binary mode.");
-  }
-  if (_setmode(_fileno(stdout), _O_BINARY) == -1) {
-    perror("Warning: Cannot set outputstream to binary mode.");
-  }
-  if (_setmode(_fileno(stderr), _O_BINARY) == -1) {
-    perror("Warning: Cannot set errorstream to binary mode.");
-  }
-#endif 
 
   initialized = ATtrue;
 
@@ -428,7 +412,7 @@ void ATprotectArray(ATerm *start, unsigned int size)
   if(!free_prot_entries) {
     ProtEntry *entries = (ProtEntry *)AT_calloc(PROTECT_EXPAND_SIZE, sizeof(ProtEntry));
     if(!entries) ATerror("out of memory in ATprotect.\n");
-    
+
     for(i=0; i<PROTECT_EXPAND_SIZE; i++) {
       entries[i].next = free_prot_entries;
       free_prot_entries = &entries[i];
@@ -495,7 +479,7 @@ void ATaddProtectFunction(ATermProtFunc f)
         at_prot_functions_size += 1;
       else
         at_prot_functions_size += PROTECT_FUNC_EXPAND_SIZE;
-    
+
       new_at_prot_functions = (ATermProtFunc *) AT_realloc(at_prot_functions, at_prot_functions_size*sizeof(ATermProtFunc));
 
       /* Reallocation failed again; try with a single extra element */
@@ -504,7 +488,7 @@ void ATaddProtectFunction(ATermProtFunc f)
         new_at_prot_functions = (ATermProtFunc *) AT_realloc(at_prot_functions, at_prot_functions_size*sizeof(ATermProtFunc));
       }
     }
-      
+
     if (!new_at_prot_functions)
       ATerror("out of memory in ATaddProtectFunction.\n");
     else
@@ -517,7 +501,7 @@ void ATaddProtectFunction(ATermProtFunc f)
 void ATremoveProtectFunction(ATermProtFunc f)
 {
   int i;
-  
+
   for (i=0; i<at_prot_functions_count; i++)
   {
     if ( at_prot_functions[i] == f )
@@ -843,7 +827,7 @@ writeToTextFile(ATerm t, FILE * f)
 	list = ATgetNext(list);
       }
       while(!ATisEmpty(list)) {
-	fputc(',', f);				
+	fputc(',', f);
 	ATwriteToTextFile(ATgetFirst(list), f);
 	list = ATgetNext(list);
       }
@@ -922,7 +906,7 @@ ATwriteToTextFile(ATerm t, FILE * f)
  */
 
 ATbool ATwriteToNamedTextFile(ATerm t, const char *name)
-{  
+{
   FILE  *f;
   ATbool result;
 
@@ -948,7 +932,7 @@ ATbool ATwriteToNamedTextFile(ATerm t, const char *name)
  */
 
 ATbool ATwriteToNamedSharedTextFile(ATerm t, const char *name)
-{  
+{
   FILE  *f;
   ATbool result;
 
@@ -1860,7 +1844,7 @@ ATerm ATreadFromFile(FILE *file)
   } else if (c == SAF_IDENTIFICATION_TOKEN) {
   	int token = ungetc(SAF_IDENTIFICATION_TOKEN, file);
   	if(token != SAF_IDENTIFICATION_TOKEN) ATerror("Unable to unget the SAF identification token.\n");
-  	
+
   	return ATreadFromSAFFile(file);
   } else {
     /* Probably a text file */
@@ -1881,7 +1865,7 @@ ATerm ATreadFromFile(FILE *file)
  */
 
 ATerm ATreadFromNamedFile(const char *name)
-{  
+{
   FILE  *f;
   ATerm t;
 
@@ -2327,7 +2311,7 @@ void AT_markTerm(ATerm t)
 #ifdef WITH_STATS
   ATerm          *depth = mark_stack;
 #endif
-  
+
   mark_stack[0] = NULL;
   *current++ = t;
 
@@ -2360,7 +2344,7 @@ void AT_markTerm(ATerm t)
     if (current > depth)
       depth = current;
 #endif
-    
+
     t = *--current;
 
     if (!t) {
@@ -2374,7 +2358,7 @@ void AT_markTerm(ATerm t)
       continue;
 
     SET_MARK(t->header);
-    
+
     if(HAS_ANNO(t->header))
       *current++ = AT_getAnnotations(t);
 
@@ -2432,7 +2416,7 @@ void AT_markTerm(ATerm t)
 }
 
 /* Jurgen asks: why is this function not in gc.c ? */
-void AT_markTerm_young(ATerm t) 
+void AT_markTerm_young(ATerm t)
 {
   unsigned int    i, arity;
   Symbol          sym;
@@ -2446,7 +2430,7 @@ void AT_markTerm_young(ATerm t)
       /*fprintf(stderr,"AT_markTerm_young (%p) STOP MARK: age = %d\n",t,GET_AGE(t->header));*/
     return;
   }
-  
+
   mark_stack[0] = NULL;
   *current++ = t;
 
@@ -2479,7 +2463,7 @@ void AT_markTerm_young(ATerm t)
     if (current > depth)
       depth = current;
 #endif
-    
+
     t = *--current;
 
     if (!t) {
@@ -2523,7 +2507,7 @@ void AT_markTerm_young(ATerm t)
 	  ATerm arg = ATgetArgument((ATermAppl) t, i);
 	  *current++ = arg;
 	}
-        
+
 	break;
 
       case AT_LIST:
@@ -2594,7 +2578,7 @@ AT_unmarkTerm(ATerm t)
       break;
 
     CLR_MARK(t->header);
-    
+
     if(HAS_ANNO(t->header))
       *current++ = AT_getAnnotations(t);
 
@@ -2677,7 +2661,7 @@ void AT_unmarkIfAllMarked(ATerm t)
       default:
 	ATerror("collect_terms: illegal term\n");
 	break;
-    }		
+    }
 
     if(HAS_ANNO(t->header)) {
       /*ATfprintf(stderr, "* unmarking annos of %t\n", t);*/
@@ -2700,10 +2684,10 @@ void AT_unmarkAll()
 
   for (size=1; size<AT_getMaxTermSize(); size++) {
     unsigned int last = BLOCK_SIZE - (BLOCK_SIZE % size) - size;
-    
+
     for (blocktype = AT_BLOCK; blocktype <= AT_OLD_BLOCK; blocktype++) {
       block = terminfo[size].at_blocks[blocktype];
-    
+
       while (block) {
         unsigned int idx;
         ATerm data = (ATerm)block->data;
@@ -3213,7 +3197,7 @@ static ATermList AT_diffList(ATermList l1, ATermList l2, ATermList *diffs)
 /*}}}  */
 /*{{{  static ATerm AT_diff(ATerm t1, ATerm t2, ATermList *diffs) */
 
-static ATerm AT_diff(ATerm t1, ATerm t2, ATermList *diffs) 
+static ATerm AT_diff(ATerm t1, ATerm t2, ATermList *diffs)
 {
   ATerm diff = NULL;
 
@@ -3371,7 +3355,7 @@ ATbool AT_isDeepEqual(ATerm t1, ATerm t2)
       break;
 
     case AT_PLACEHOLDER:
-      result = AT_isDeepEqual(ATgetPlaceholder((ATermPlaceholder)t1), 
+      result = AT_isDeepEqual(ATgetPlaceholder((ATermPlaceholder)t1),
 			      ATgetPlaceholder((ATermPlaceholder)t1));
       break;
 
@@ -3463,7 +3447,7 @@ ATbool AT_isEqual(ATerm t1, ATerm t2)
       break;
 
     case AT_PLACEHOLDER:
-      result = AT_isEqual(ATgetPlaceholder((ATermPlaceholder)t1), 
+      result = AT_isEqual(ATgetPlaceholder((ATermPlaceholder)t1),
 			 ATgetPlaceholder((ATermPlaceholder)t1));
       break;
 
@@ -3518,7 +3502,7 @@ ATbool ATisEqualModuloAnnotations(ATerm t1, ATerm t2)
 	}
 
 	for(i=0; i<arity; i++)
-	  if(!ATisEqualModuloAnnotations(ATgetArgument(appl1, i), 
+	  if(!ATisEqualModuloAnnotations(ATgetArgument(appl1, i),
 					 ATgetArgument(appl2, i))) {
 	    return ATfalse;
 	  }
@@ -3533,7 +3517,7 @@ ATbool ATisEqualModuloAnnotations(ATerm t1, ATerm t2)
 	}
 
 	while(!ATisEmpty(list1)) {
-	  if (!ATisEqualModuloAnnotations(ATgetFirst(list1), 
+	  if (!ATisEqualModuloAnnotations(ATgetFirst(list1),
 					  ATgetFirst(list2))) {
 	    return ATfalse;
 	  }
@@ -3559,7 +3543,7 @@ ATbool ATisEqualModuloAnnotations(ATerm t1, ATerm t2)
 
     case AT_PLACEHOLDER:
       result = ATisEqualModuloAnnotations(
-			  ATgetPlaceholder((ATermPlaceholder)t1), 
+			  ATgetPlaceholder((ATermPlaceholder)t1),
 			  ATgetPlaceholder((ATermPlaceholder)t1));
       break;
 
@@ -3645,7 +3629,7 @@ ATerm ATremoveAllAnnotations(ATerm t)
 
 /*{{{  static int AT_compareArguments(ATermAppl t1, ATermAppl t2)  */
 
-static int AT_compareArguments(ATermAppl t1, ATermAppl t2) 
+static int AT_compareArguments(ATermAppl t1, ATermAppl t2)
 {
   unsigned int arity1;
   unsigned int arity2;
@@ -3656,8 +3640,8 @@ static int AT_compareArguments(ATermAppl t1, ATermAppl t2)
 
   arity1 = ATgetArity(ATgetAFun(t1));
   arity2 = ATgetArity(ATgetAFun(t2));
-  
-  
+
+
   for (i = 0; result == 0 && i < arity1 && i < arity2; i++) {
     arg1 = ATgetArgument(t1, i);
     arg2 = ATgetArgument(t2, i);
@@ -3704,7 +3688,7 @@ static int AT_compareAppls(ATermAppl t1, ATermAppl t2)
 /*}}}  */
 /*{{{  static int AT_compareInts(ATermInt t1, ATermInt t2)  */
 
-static int AT_compareInts(ATermInt t1, ATermInt t2) 
+static int AT_compareInts(ATermInt t1, ATermInt t2)
 {
   int i1;
   int i2;
@@ -3722,7 +3706,7 @@ static int AT_compareInts(ATermInt t1, ATermInt t2)
 /*}}}  */
 /*{{{  static int AT_compareReals(ATermReal t1, ATermReal t2)  */
 
-static int AT_compareReals(ATermReal t1, ATermReal t2) 
+static int AT_compareReals(ATermReal t1, ATermReal t2)
 {
   double r1;
   double r2;
@@ -3740,7 +3724,7 @@ static int AT_compareReals(ATermReal t1, ATermReal t2)
 /*}}}  */
 /*{{{  static int AT_compareLists(ATermList t1, ATermList t2)  */
 
-static int AT_compareLists(ATermList t1, ATermList t2) 
+static int AT_compareLists(ATermList t1, ATermList t2)
 {
   int length1;
   int length2;
@@ -3751,13 +3735,13 @@ static int AT_compareLists(ATermList t1, ATermList t2)
   while (result == 0 && !ATisEmpty(t1) && !ATisEmpty(t2)) {
     elt1 = ATgetFirst(t1);
     elt2 = ATgetFirst(t2);
-   
+
     result = ATcompare(elt1,elt2);
 
     t1 = ATgetNext(t1);
     t2 = ATgetNext(t2);
   }
-  
+
   if (result != 0) {
     return result;
   }
@@ -3777,7 +3761,7 @@ static int AT_compareLists(ATermList t1, ATermList t2)
 /*}}}  */
 /*{{{  static int AT_comparePlaceholders(ATermPlaceholder t1, ATermPlaceholder t2)  */
 
-static int AT_comparePlaceholders(ATermPlaceholder t1, ATermPlaceholder t2) 
+static int AT_comparePlaceholders(ATermPlaceholder t1, ATermPlaceholder t2)
 {
   ATerm type1;
   ATerm type2;
@@ -3789,7 +3773,7 @@ static int AT_comparePlaceholders(ATermPlaceholder t1, ATermPlaceholder t2)
 /*}}}  */
 /*{{{  static int AT_compareBlobs(ATermBlob t1, ATermBlob t2)  */
 
-static int AT_compareBlobs(ATermBlob t1, ATermBlob t2) 
+static int AT_compareBlobs(ATermBlob t1, ATermBlob t2)
 {
   char *data1;
   char *data2;
@@ -3835,7 +3819,7 @@ int ATcompare(ATerm t1, ATerm t2)
 
   type1 = ATgetType(t1);
   type2 = ATgetType(t2);
-	
+
   if (type1 < type2) {
     return -1;
   }
@@ -3857,7 +3841,7 @@ int ATcompare(ATerm t1, ATerm t2)
       result = AT_compareLists((ATermList) t1, (ATermList) t2);
       break;
     case AT_PLACEHOLDER:
-      result = AT_comparePlaceholders((ATermPlaceholder) t1, 
+      result = AT_comparePlaceholders((ATermPlaceholder) t1,
 				    (ATermPlaceholder) t2);
       break;
     case AT_BLOB:

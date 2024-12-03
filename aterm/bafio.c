@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifdef WIN32
-#include <fcntl.h>
-#include <io.h>
-#endif
-
 #include "_aterm.h"
 #include "aterm2.h"
 #include "memory.h"
@@ -1193,13 +1188,6 @@ ATbool ATwriteToBinaryFile(ATerm t, FILE *file)
     initialized = ATtrue;
   }
   writer.u.file_data = file;
-
-#ifdef WIN32
-  if( _setmode( _fileno( file ), _O_BINARY ) == -1 ) {
-    perror( "Warning: Cannot set outputfile to binary mode." );
-  }
-#endif
-
   return write_baf(t, &writer);
 }
 
@@ -1619,16 +1607,7 @@ ATerm ATreadFromBinaryString(const unsigned char *s, int size)
 ATerm ATreadFromBinaryFile(FILE *file)
 {
   byte_reader reader;
-
   init_file_reader(&reader, file);
-
-#ifdef WIN32
-  if( _setmode( _fileno( file ), _O_BINARY ) == -1 ) {
-    perror( "Warning: Cannot set inputfile to binary mode."
-	    );
-  }
-#endif
-
   return read_baf(&reader);
 }
 
