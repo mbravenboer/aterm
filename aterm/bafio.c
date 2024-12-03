@@ -67,7 +67,7 @@ typedef struct _top_symbol
 
   int index;
   int count;
-	
+
   int code_width;
   int code;
 } top_symbol;
@@ -76,7 +76,7 @@ typedef struct
 {
   int         nr_symbols;
   top_symbol *symbols;
-	
+
   int toptable_size;
   top_symbol **toptable;
 } top_symbols;
@@ -90,7 +90,7 @@ typedef struct _sym_entry
   trm_bucket *terms;
 
   top_symbols *top_symbols; /* top symbols occuring in this symbol */
-	
+
   int termtable_size;
   trm_bucket **termtable;
 
@@ -139,7 +139,7 @@ static int  bits_in_buffer = 0; /* how many bits in bit_buffer are used */
 	*/
 
 void AT_initBafIO(int argc, char *argv[])
-{ 
+{
   /* Suppress unused arguments warning */
   (void) argc;
   (void) argv;
@@ -245,7 +245,7 @@ flushBitsToWriter(byte_writer *writer)
     bits_in_buffer = 0;
     bit_buffer = '\0';
   }
-	
+
   return result;
 }
 
@@ -326,7 +326,7 @@ readInt(unsigned int *val, byte_reader *reader)
       *val = buf[0];
       return 1;
     }
-	
+
   /* Try to read 2nd character */
   if ( (buf[1] = read_byte(reader)) == EOF )
     return EOF;
@@ -348,7 +348,7 @@ readInt(unsigned int *val, byte_reader *reader)
       *val = buf[2] + (buf[1] << 8) + ((buf[0] & ~0xe0) << 16);
       return 3;
     }
-	
+
   /* Try to read 4th character */
   if ( (buf[3] = read_byte(reader)) == EOF )
     return EOF;
@@ -449,7 +449,7 @@ void
 AT_print_sym_entries()
 {
   int cur_sym, cur_arg;
-	
+
   for(cur_sym=0; cur_sym<nr_unique_symbols; cur_sym++) {
     sym_entry *cur_entry = &sym_entries[cur_sym];
     ATfprintf(stderr, "symbol %y: #=%d, width: %d\n",
@@ -462,7 +462,7 @@ AT_print_sym_entries()
       ATfprintf(stderr, "\n");
     }
 #endif
-		
+
     ATfprintf(stderr, "  arity: %d\n", cur_entry->arity);
     for (cur_arg=0; cur_arg<cur_entry->arity; cur_arg++) {
       int sym;
@@ -492,7 +492,7 @@ static sym_entry *get_top_symbol(ATerm t, ATbool anno_done)
 
   if (HAS_ANNO(t->header) && !anno_done)
     sym = AS_ANNOTATION;
-  else { 
+  else {
     switch (ATgetType(t)) {
     case AT_INT:
       sym = AS_INT;
@@ -518,7 +518,7 @@ static sym_entry *get_top_symbol(ATerm t, ATbool anno_done)
       break;
     }
   }
-	
+
   return &sym_entries[at_lookup_table[sym]->index];
 }
 
@@ -529,7 +529,7 @@ static sym_entry *get_top_symbol(ATerm t, ATbool anno_done)
 static int bit_width(int val)
 {
   int nr_bits = 0;
-	
+
   if (val <= 1)
     return 0;
 
@@ -537,7 +537,7 @@ static int bit_width(int val)
     val>>=1;
     nr_bits++;
   }
-	
+
   return nr_bits;
 }
 
@@ -549,7 +549,7 @@ static int bit_width(int val)
   * terms have been sorted by symbol.
 	*/
 
-static void gather_top_symbols(sym_entry *cur_entry, int cur_arg, 
+static void gather_top_symbols(sym_entry *cur_entry, int cur_arg,
 			       int total_top_symbols)
 {
   int index;
@@ -570,7 +570,7 @@ static void gather_top_symbols(sym_entry *cur_entry, int cur_arg,
   if (!tss->toptable)
     ATerror("build_arg_tables: out of memory (table_size: %d)\n",
 	    tss->toptable_size);
-	
+
   index = 0;
   for(top_entry=first_topsym; top_entry; top_entry=top_entry->next_topsym) {
     /*for(lcv=index=0; lcv<nr_unique_symbols; lcv++) {
@@ -582,11 +582,11 @@ static void gather_top_symbols(sym_entry *cur_entry, int cur_arg,
     ts->code_width = bit_width(total_top_symbols);
     ts->code = index;
     ts->s = top_entry->id;
-		
+
     hnr = ts->s % tss->toptable_size;
     ts->next = tss->toptable[hnr];
     tss->toptable[hnr] = ts;
-		
+
     top_entry->nr_times_top = 0;
     index++;
   }
@@ -597,17 +597,17 @@ static void build_arg_tables()
   int cur_sym, cur_trm;
   unsigned int cur_arg;
   sym_entry *topsym;
-	
+
   for(cur_sym=0; cur_sym<nr_unique_symbols; cur_sym++) {
     sym_entry *cur_entry = &sym_entries[cur_sym];
     unsigned int arity = cur_entry->arity;
 
     assert(arity == ATgetArity(cur_entry->id));
-		
+
     if(arity == 0)
       cur_entry->top_symbols = NULL;
     else {
-      cur_entry->top_symbols = (top_symbols *)AT_calloc(arity, 
+      cur_entry->top_symbols = (top_symbols *)AT_calloc(arity,
 						     sizeof(top_symbols));
       if(!cur_entry->top_symbols)
 	ATerror("build_arg_tables: out of memory (arity: %d)\n", arity);
@@ -650,7 +650,7 @@ static void build_arg_tables()
 	    break;
 	  }
 	}
-	topsym = get_top_symbol(arg, sym_entries[cur_sym].id == 
+	topsym = get_top_symbol(arg, sym_entries[cur_sym].id ==
 				AS_ANNOTATION ? ATtrue : ATfalse);
 	if (!topsym->nr_times_top++) {
 	  total_top_symbols++;
@@ -740,7 +740,7 @@ static void collect_terms(ATerm t)
 
     assert(entry->id == sym);
     add_term(entry, t);
-		
+
     /* handle annotation */
     annos = AT_getAnnotations(t);
     if (annos) {
@@ -764,7 +764,7 @@ static void collect_terms(ATerm t)
 static ATbool write_symbols(byte_writer *writer)
 {
   int sym_idx, arg_idx, top_idx;
-	
+
   for(sym_idx=0; sym_idx<nr_unique_symbols; sym_idx++) {
     sym_entry *cur_sym = &sym_entries[sym_idx];
     if (!write_symbol(cur_sym->id, writer))
@@ -784,7 +784,7 @@ static ATbool write_symbols(byte_writer *writer)
       }
     }
   }
-	
+
   return ATtrue;
 }
 
@@ -799,13 +799,13 @@ static int find_term(sym_entry *entry, ATerm t)
 {
   unsigned int hnr = AT_hashnumber(t) % entry->termtable_size;
   trm_bucket *cur = entry->termtable[hnr];
-	
+
   assert(cur);
   while (cur->t != t) {
     cur = cur->next;
     assert(cur);
   }
-	
+
   return cur - entry->terms;
 }
 
@@ -820,13 +820,13 @@ static top_symbol *find_top_symbol(top_symbols *syms, AFun sym)
 {
   unsigned int hnr = sym % syms->toptable_size;
   top_symbol *cur = syms->toptable[hnr];
-	
+
   assert(cur);
   while (cur->s != sym) {
     cur = cur->next;
     assert(cur);
   }
-	
+
   return cur;
 }
 
@@ -840,23 +840,23 @@ static top_symbol *find_top_symbol(top_symbols *syms, AFun sym)
 /* forward declaration */
 static ATbool write_term(ATerm, byte_writer *, ATbool);
 
-static ATbool write_arg(sym_entry *trm_sym, ATerm arg, int arg_idx, 
+static ATbool write_arg(sym_entry *trm_sym, ATerm arg, int arg_idx,
 			byte_writer *writer, ATbool anno_done)
 {
   top_symbol *ts;
   sym_entry *arg_sym;
   int arg_trm_idx;
   AFun sym;
-	
+
   sym = get_top_symbol(arg, anno_done)->id;
   ts = find_top_symbol(&trm_sym->top_symbols[arg_idx], sym);
 
   /*ATfprintf(stderr, "writing topsymbol index of %y = %d\n", ts->s, ts->code);*/
   if(writeBits(ts->code, ts->code_width, writer)<0)
     return ATfalse;
-	
+
   arg_sym = &sym_entries[ts->index];
-	
+
   arg_trm_idx = find_term(arg_sym, arg);
   /*	ATfprintf(stderr, "writing arg term index of %t = %d\n",
 	arg, arg_trm_idx);*/
@@ -867,12 +867,12 @@ static ATbool write_arg(sym_entry *trm_sym, ATerm arg, int arg_idx,
 
   /*ATfprintf(stderr, "argument %t at index %d (cur_index of %y = %d)\n",
     arg, arg_trm_idx, arg_sym->id, arg_sym->cur_index);*/
-  if (arg_trm_idx >= arg_sym->cur_index && 
+  if (arg_trm_idx >= arg_sym->cur_index &&
      !write_term(arg, writer, anno_done)) {
     /*fprintf(stderr, "write_term in write_arg failed\n");*/
     return ATfalse;
   }
-	
+
   return ATtrue;
 }
 
@@ -990,7 +990,7 @@ static ATbool write_term(ATerm t, byte_writer *writer, ATbool anno_done)
   trm_sym->cur_index++;
   /*ATfprintf(stderr, "term=%t, trm_sym=%y, cur_index=%d\n", t, trm_sym->id,
     trm_sym->cur_index);*/
-	
+
   return ATtrue;
 }
 
@@ -1046,9 +1046,8 @@ write_baf(ATerm t, byte_writer *writer)
   int nr_unique_terms = 0;
   int nr_symbols = AT_symbolTableSize();
   int lcv, cur;
-  int nr_bits;
   AFun sym;
-	
+
   /* Initialize bit buffer */
   bit_buffer     = '\0';
   bits_in_buffer = 0; /* how many bits in bit_buffer are used */
@@ -1063,8 +1062,6 @@ write_baf(ATerm t, byte_writer *writer)
   if(!sym_entries)
     ATerror("write_baf: out of memory (%d unique symbols!\n",
 	    nr_unique_symbols);
-	
-  nr_bits = bit_width(nr_unique_symbols);
 
   /*{{{  Collect all unique symbols in the input term */
 
@@ -1090,7 +1087,7 @@ write_baf(ATerm t, byte_writer *writer)
       if (!sym_entries[cur].termtable)
 	ATerror("write_baf: out of memory (termtable_size: %d\n",
 		sym_entries[cur].termtable_size);
-			
+
       entry->index = cur;
       entry->count = 0; /* restore invariant that symbolcount is zero */
 
@@ -1101,20 +1098,20 @@ write_baf(ATerm t, byte_writer *writer)
   assert(cur == nr_unique_symbols);
 
   /*}}}  */
-	
+
   /*ATfprintf(stderr, "writing %d symbols, %d terms.\n",
     nr_unique_symbols, nr_unique_terms);*/
-	
+
   collect_terms(t);
   AT_unmarkIfAllMarked(t);
-	
+
   /* reset cur_index */
   for(lcv=0; lcv < nr_unique_symbols; lcv++)
     sym_entries[lcv].cur_index = 0;
-	
+
   build_arg_tables();
   /*print_sym_entries();*/
-	
+
   /*{{{  write header */
 
   if(writeInt(0, writer) < 0)
@@ -1133,7 +1130,7 @@ write_baf(ATerm t, byte_writer *writer)
     return ATfalse;
 
   /*}}}  */
-	
+
   if(!write_symbols(writer)) {
     return ATfalse;
   }
@@ -1146,7 +1143,7 @@ write_baf(ATerm t, byte_writer *writer)
   if (!write_term(t, writer, ATfalse)) {
     return ATfalse;
   }
-	
+
   if (flushBitsToWriter(writer)<0)
     return ATfalse;
 
@@ -1215,7 +1212,7 @@ ATbool ATwriteToBinaryFile(ATerm t, FILE *file)
   */
 
 ATbool ATwriteToNamedBinaryFile(ATerm t, const char *name)
-{  
+{
   FILE  *f;
   ATbool result;
 
@@ -1299,7 +1296,7 @@ static ATbool read_all_symbols(byte_reader *reader)
       ATerror("read_symbols: could not allocate space for %d terms.\n", val);
 
     /*}}}  */
-		
+
     /*{{{  Allocate space for topsymbol information */
 
     if(arity == 0) {
@@ -1381,7 +1378,7 @@ static ATerm read_term(sym_read_entry *sym, byte_reader *reader)
     if(val >= sym->nr_topsyms[i])
       return NULL;
     arg_sym = &read_symbols[sym->topsyms[i][val]];
-    /*		ATfprintf(stderr, "argument %d, symbol index = %d, symbol = %y\n", 
+    /*		ATfprintf(stderr, "argument %d, symbol index = %d, symbol = %y\n",
 		i, val, arg_sym->sym);*/
 
     /*ATfprintf(stderr, "  argsym = %y (term width = %d)\n",
@@ -1395,7 +1392,7 @@ static ATerm read_term(sym_read_entry *sym, byte_reader *reader)
       arg_sym->terms[val] = read_term(arg_sym, reader);
       if(!arg_sym->terms[val])
 	return NULL;
-      /*ATfprintf(stderr, "sym=%y, index=%d, t=%t\n", arg_sym->sym, 
+      /*ATfprintf(stderr, "sym=%y, index=%d, t=%t\n", arg_sym->sym,
 	val, arg_sym->terms[val]);				*/
     }
 
@@ -1514,7 +1511,7 @@ static void free_read_space()
       AT_free(entry->topsyms[j]);
     if(entry->topsyms)
       AT_free(entry->topsyms);
-    
+
     ATunprotectSymbol(entry->sym);
   }
   AT_free(read_symbols);
@@ -1566,7 +1563,7 @@ ATerm read_baf(byte_reader *reader)
     return NULL;
   }
   nr_unique_symbols = val;
-		
+
   if (readInt(&nr_unique_terms, reader) < 0) {
     return NULL;
   }
@@ -1597,7 +1594,7 @@ ATerm read_baf(byte_reader *reader)
   }
 
   result = read_term(&read_symbols[val], reader);
- 
+
   free_read_space();
 
   return result;
@@ -1622,7 +1619,7 @@ ATerm ATreadFromBinaryString(const unsigned char *s, int size)
 ATerm ATreadFromBinaryFile(FILE *file)
 {
   byte_reader reader;
-  
+
   init_file_reader(&reader, file);
 
 #ifdef WIN32

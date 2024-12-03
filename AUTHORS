@@ -1,4 +1,3 @@
-
 The Annotated Term Library was developed at the CWI by
   Pieter Olivier <olivierp@cwi.nl>, and
   Hayco de Jong  <jong@cwi.nl>
@@ -7,7 +6,7 @@ The ATermTables were later re-implemented by Jan-Friso Groote
 
 Currently, the library is maintained by
   Erik Scheffers (TU Eindhoven)
-  Arnold Lankamp (CWI) 
+  Arnold Lankamp (CWI)
 
 Several people have contributed to the ATerm library by hinting
 at bugs, sending in bugfixes, pointing out efficiency improvements,

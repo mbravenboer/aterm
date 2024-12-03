@@ -178,7 +178,7 @@ static HashNumber hash_number(ATerm t, unsigned int size)
   HashNumber hnr;
 
   hnr = START(HIDE_AGE_MARK(t->word[0]));
-  
+
   for (i=ARG_OFFSET; i<size; i++) {
     hnr = COMBINE(hnr, t->word[i]);
   }
@@ -192,7 +192,7 @@ static HashNumber hash_number_anno(ATerm t, unsigned int size, ATerm anno)
   HashNumber hnr;
 
   hnr = START(HIDE_AGE_MARK(t->word[0]));
-  
+
   for (i=ARG_OFFSET; i<size; i++) {
     hnr = COMBINE(hnr, t->word[i]);
   }
@@ -214,7 +214,7 @@ HashNumber AT_hashnumber(ATerm t)
 #ifdef WITH_STATS
 /*{{{  static void hash_info(int stats[3][]) */
 
-static void hash_info(int stats[MAX_INFO_SIZES][3]) 
+static void hash_info(int stats[MAX_INFO_SIZES][3])
 {
   unsigned int i, len;
   static int count[MAX_INFO_SIZES];
@@ -229,7 +229,7 @@ static void hash_info(int stats[MAX_INFO_SIZES][3])
     len = 0;
     while(cur) {
       len++;
-      cur = cur->aterm.next; 
+      cur = cur->aterm.next;
     }
     if(len >= MAX_INFO_SIZES)
       len = MAX_INFO_SIZES-1;
@@ -260,7 +260,7 @@ void resize_hashtable()
     /*fprintf(stderr, "warning: do not resize hashtable\n"); */
     /*return;*/
 
-  oldsize = table_size;  
+  oldsize = table_size;
   table_class++;
   table_size = ((HashNumber)1)<<table_class;
   table_mask = table_size-1;
@@ -269,7 +269,7 @@ void resize_hashtable()
 
   /*{{{  Create new term table */
   newtable = (ATerm *) AT_realloc(hashtable, table_size * sizeof(ATerm));
-  
+
   if (newtable)
     hashtable = newtable;
   else {
@@ -368,7 +368,7 @@ void AT_initMemory(unsigned int argc, char *argv[])
       if (maxTermSize < MIN_TERM_SIZE)
         maxTermSize = MIN_TERM_SIZE;
     } else if(strcmp(argv[i], "-at-help") == 0) {
-      fprintf(stderr, "    %-20s: initial termtable size " 
+      fprintf(stderr, "    %-20s: initial termtable size "
               "(2^size, default=%d)\n",        TERM_HASH_OPT " <size>", table_class);
 #ifdef WITH_STATS
       fprintf(stderr, "    %-20s: write information to 'hashing.stats'\n",
@@ -381,26 +381,26 @@ void AT_initMemory(unsigned int argc, char *argv[])
       fprintf(stderr, "    %-20s: check subterm validity at term creation "
               "(disabled!)\n", TERM_CHECK_OPT);
 #else
-      fprintf(stderr, "    %-20s: check subterm validity at term creation\n", 
+      fprintf(stderr, "    %-20s: check subterm validity at term creation\n",
               TERM_CHECK_OPT);
 #endif
-      fprintf(stderr, "    %-20s: initial maximum term size " 
+      fprintf(stderr, "    %-20s: initial maximum term size "
               "(minimum=%lud, default=%lud)\n", TERM_SIZE_OPT " <size>", (unsigned long) MIN_TERM_SIZE, (unsigned long) maxTermSize);
-    } 
+    }
   }
 
   /*}}}  */
 
   /*{{{  Initialize blocks */
-  
+
   terminfo = (TermInfo*) AT_calloc(maxTermSize, sizeof(TermInfo));
-  
+
   /*}}}  */
   /*{{{  Create term term table */
 
   hashtable = (ATerm *)AT_calloc(table_size, sizeof(ATerm ));
   if(!hashtable) {
-    ATerror("AT_initMemory: cannot allocate term table of size %d\n", 
+    ATerror("AT_initMemory: cannot allocate term table of size %d\n",
             table_size);
   }
 
@@ -467,7 +467,7 @@ void AT_cleanupMemory()
     if(at_gc_count > 0) {
       fprintf(f, "hash statistics before and after garbage collection:\n");
       for(i=0; i<=max; i++) {
-        fprintf(f, "%8d %8d %8d   %8d %8d %8d\n", 
+        fprintf(f, "%8d %8d %8d   %8d %8d %8d\n",
                 hash_info_before_gc[i][IDX_MIN],
                 hash_info_before_gc[i][IDX_TOTAL]/at_gc_count,
                 hash_info_before_gc[i][IDX_MAX],
@@ -524,13 +524,13 @@ header_type *max_heap_address = 0;
 
 /*{{{  static void allocate_block(unsigned int size)  */
 
-static void allocate_block(unsigned int size) 
+static void allocate_block(unsigned int size)
 {
   int idx;
   Block *newblock;
   int init = 0;
   TermInfo* ti;
-  
+
   if(at_freeblocklist != NULL) {
 #ifdef GC_VERBOSE
     fprintf(stderr,"allocate_block %p from at_freeblocklist\n",at_freeblocklist);
@@ -550,18 +550,18 @@ static void allocate_block(unsigned int size)
 
       /*printf("min_heap_address = %p\n",min_heap_address );*/
       /*printf("max_heap_address = %p\n",max_heap_address );*/
-    
+
     min_heap_address = MIN(min_heap_address,(newblock->data));
     max_heap_address = MAX(max_heap_address,(newblock->data+BLOCK_SIZE));
     assert(min_heap_address < max_heap_address);
-    
+
   }
 
   assert(size >= MIN_TERM_SIZE && size < maxTermSize);
-  
+
   ti = &terminfo[size];
   ti->at_nrblocks++;
-  
+
   /*
     printf("allocate_block[%d] = %d*%d\ttotal_nodes = %d\n",
        size, at_nrblocks[size],sizeof(Block),total_nodes);
@@ -577,7 +577,7 @@ static void allocate_block(unsigned int size)
   ti->top_at_blocks = newblock->data;
   assert(ti->at_blocks[AT_BLOCK] != NULL);
   assert(((long)ti->top_at_blocks % MAX(sizeof(double), sizeof(void *))) == 0);
-  
+
     /* [pem: Feb 14 02] TODO: fast allocation */
   assert(ti->at_freelist == NULL);
 
@@ -602,7 +602,7 @@ static void allocate_block(unsigned int size)
 
 /*{{{  statistics macros */
 
-#define AT_STATISTICS 
+#define AT_STATISTICS
 
 #define ALLOCATE_BLOCK_TEXT\
         allocate_block(size);\
@@ -670,7 +670,7 @@ unsigned long AT_getAllocatedCount()
 
 /*{{{  void AT_statistics()  */
 
-void AT_statistics() 
+void AT_statistics()
 {
   unsigned int size;
   Block *block;
@@ -679,11 +679,17 @@ void AT_statistics()
   int old_in_young_heap=0;
   int young_in_heap=0;
   int free_in_heap=0;
+
+  _unused(old_in_old_heap); // debugging
+  _unused(old_in_young_heap); // debugging
+  _unused(young_in_heap); // debugging
+  _unused(free_in_heap); // debugging
+
     /*
      * STATISTICS
      */
   for(size=MIN_TERM_SIZE; size<maxTermSize; size++) {
-    
+
     block = terminfo[size].at_blocks[AT_OLD_BLOCK];
     while(block) {
       for(cur=block->data ; cur<block->end ; cur+=size) {
@@ -736,9 +742,9 @@ void AT_statistics()
           (old_in_young_heap+old_in_old_heap)/1024,
           (young_in_heap+old_in_old_heap+old_in_young_heap)/1024,
           (young_in_heap+old_in_old_heap+old_in_young_heap+free_in_heap)/1024);
-    */    
+    */
 #endif
-  
+
 }
 
 /*}}}  */
@@ -769,7 +775,7 @@ void AT_growMaxTermSize(unsigned int neededsize)
   if (!newsize) {
     ATerror("AT_growMaxTermSize: cannot allocate %d extra TermInfo elements.\n", newsize-maxTermSize);
   }
-  
+
   /* Clear new area */
   memset(&newterminfo[maxTermSize], 0, (newsize-maxTermSize)*sizeof(TermInfo));
 
@@ -779,17 +785,17 @@ void AT_growMaxTermSize(unsigned int neededsize)
 
 /*{{{  ATerm AT_allocate(unsigned int size)  */
 
-ATerm AT_allocate(unsigned int size) 
+ATerm AT_allocate(unsigned int size)
 {
   ATerm at;
   TermInfo* ti;
-  
+
   nb_at_allocate++;
-  
+
   if (size+1 > maxTermSize) {
     AT_growMaxTermSize(size+1);
   }
-  
+
   ti = &terminfo[size];
 
   while(1) {
@@ -812,7 +818,7 @@ ATerm AT_allocate(unsigned int size)
 #ifdef GC_VERBOSE
       fprintf(stderr,"AT_allocate(%d)\n",size);
 #endif
-  
+
       if(ti->at_nrblocks <= gc_min_number_of_blocks) {
 #ifdef GC_VERBOSE
         fprintf(stderr,"INITIAL PHASE -> ALLOCATE_BLOCK\n");
@@ -829,7 +835,7 @@ ATerm AT_allocate(unsigned int size)
         fprintf(stderr,"reclaimed_memory_during_last_gc = %d\n",reclaimed_memory_during_last_gc);
         fprintf(stderr,"reclaimed_memory_ratio_during_last_gc = %d\n",reclaimed_memory_ratio_during_last_gc);
 
-        
+
 #endif
         if(reclaimed_memory_ratio_during_last_gc > good_gc_ratio) {
           if(nb_minor_since_last_major < min_nb_minor_since_last_major) {
@@ -843,7 +849,7 @@ ATerm AT_allocate(unsigned int size)
 #endif
             GC_MAJOR_TEXT;
           }
-          
+
         } else {
           int nb_allocated_blocks_since_last_gc = ti->at_nrblocks-ti->nb_live_blocks_before_last_gc;
             /* +1 to avoid division by zero */
@@ -852,7 +858,7 @@ ATerm AT_allocate(unsigned int size)
 #ifdef GC_VERBOSE
           fprintf(stderr,"allocation_rate = %d\n",allocation_rate);
 #endif
-          
+
           if(allocation_rate < small_allocation_rate_ratio) {
 #ifdef GC_VERBOSE
             fprintf(stderr,"NOT GOOD GC and SMALL ALLOCATION RATE -> ALLOCATE_BLOCK\n");
@@ -889,10 +895,10 @@ ATerm AT_allocate(unsigned int size)
 
   total_nodes++;
     /*fprintf(stderr,"AT_allocate term[%ld] = %p\n",size,at);*/
-    
+
   /* gc.c assumes alignment of ATerms is the same as the alignment of void pointers */
   assert(((unsigned long)(char*)at % ALIGNOF_VOID_P)==0);
-    
+
   return at;
 }
 
@@ -911,9 +917,9 @@ void AT_freeTerm(unsigned int size, ATerm t)
   unsigned int i;
 
   terminfo[size].nb_reclaimed_cells_during_last_gc++;
-  
+
     /*fprintf(stderr,"AT_freeTerm term[%d] = %x\theader = %x\n",size,(unsigned int)t,t->header);*/
-  
+
     /* The data of a blob needs to be freed!!! */
   if (ATgetType(t) == AT_BLOB) {
     ATbool destructed = ATfalse;
@@ -933,7 +939,7 @@ void AT_freeTerm(unsigned int size, ATerm t)
   }
 
     /* Remove the node from the hashtable */
-  hnr &= table_mask; 
+  hnr &= table_mask;
   cur = hashtable[hnr];
 
   do {
@@ -975,12 +981,12 @@ ATermAppl ATmakeAppl(Symbol sym, ...)
   va_list args;
   ATerm arg;
   ATerm* buffer;
-  
+
   header = APPL_HEADER(0, arity > MAX_INLINE_ARITY ?
                        MAX_INLINE_ARITY+1 : arity, sym);
 
   buffer = AT_alloc_protected(arity);
-  
+
   hnr = START(header);
   va_start(args, sym);
   for (i=0; i<arity; i++) {
@@ -990,7 +996,7 @@ ATermAppl ATmakeAppl(Symbol sym, ...)
   }
   va_end(args);
   hnr = FINISH(hnr);
-  
+
   cur = (ATermAppl)hashtable[hnr & table_mask];
   while (cur) {
     if (EQUAL_HEADER(cur->header,header)) {
@@ -1018,7 +1024,7 @@ ATermAppl ATmakeAppl(Symbol sym, ...)
     cur->aterm.next = hashtable[hnr];
     hashtable[hnr] = (ATerm) cur;
   }
-  
+
   AT_free_protected(buffer);
 
   return cur;
@@ -1032,11 +1038,11 @@ ATermAppl ATmakeAppl0(Symbol sym)
   ATermAppl cur, prev, *hashspot;
   header_type header = APPL_HEADER(0, 0, sym);
   HashNumber hnr;
-  
+
   PARK_SYMBOL(sym);
-  
+
   CHECK_ARITY(ATgetArity(sym), 0);
-  
+
   hnr = FINISH(START(header));
 
   prev = NULL;
@@ -1098,13 +1104,13 @@ ATermAppl ATmakeAppl1(Symbol sym, ATerm arg0)
   hnr = START(header);
   hnr = COMBINE(hnr, HN((char*)arg0));
   hnr = FINISH(hnr);
-  
+
   prev = NULL;
   hashspot = (ATermAppl*) &(hashtable[hnr & table_mask]);
 
   cur = *hashspot;
   while (cur) {
-    if(EQUAL_HEADER(header,cur->header) 
+    if(EQUAL_HEADER(header,cur->header)
           && ATgetArgument(cur, 0) == arg0) {
         /* Promote current entry to front of hashtable */
       if (prev != NULL) {
@@ -1131,7 +1137,7 @@ ATermAppl ATmakeAppl1(Symbol sym, ATerm arg0)
   hashtable[hnr] = (ATerm) cur;
 
     /*fprintf(stderr,"ATmakeAppl1 alloc = %x\tsub = %x\n",(unsigned int)cur,(unsigned int)ATgetArgument(cur, 0));*/
-  return cur;  
+  return cur;
 }
 
 /*}}}  */
@@ -1163,8 +1169,8 @@ ATermAppl ATmakeAppl2(Symbol sym, ATerm arg0, ATerm arg1)
 
   cur = *hashspot;
   while (cur) {
-    if(EQUAL_HEADER(cur->header,header) 
-         && ATgetArgument(cur, 0) == arg0 
+    if(EQUAL_HEADER(cur->header,header)
+         && ATgetArgument(cur, 0) == arg0
          && ATgetArgument(cur, 1) == arg1) {
       /* Promote current entry to front of hashtable */
       if (prev != NULL) {
@@ -1246,8 +1252,8 @@ ATermAppl ATmakeAppl3(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2)
     cur->aterm.next = hashtable[hnr];
     hashtable[hnr] = (ATerm) cur;
   }
-    
-  return cur;  
+
+  return cur;
 }
 
 /*}}}  */
@@ -1307,7 +1313,7 @@ ATermAppl ATmakeAppl4(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2, ATerm arg3
     hashtable[hnr] = (ATerm) cur;
   }
 
-  return cur;  
+  return cur;
 }
 
 /*}}}  */
@@ -1317,7 +1323,7 @@ ATermAppl ATmakeAppl4(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2, ATerm arg3
  * Create an ATermAppl with five arguments.
  */
 
-ATermAppl ATmakeAppl5(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2, 
+ATermAppl ATmakeAppl5(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2,
                       ATerm arg3, ATerm arg4)
 {
   ATermAppl cur;
@@ -1382,7 +1388,7 @@ ATermAppl ATmakeAppl5(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2,
  * Create an ATermAppl with six arguments.
  */
 
-ATermAppl ATmakeAppl6(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2, 
+ATermAppl ATmakeAppl6(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2,
                       ATerm arg3, ATerm arg4, ATerm arg5)
 {
   ATermAppl cur;
@@ -1441,7 +1447,7 @@ ATermAppl ATmakeAppl6(Symbol sym, ATerm arg0, ATerm arg1, ATerm arg2,
     hashtable[hnr] = (ATerm) cur;
   }
 
-  return cur;  
+  return cur;
 }
 
 /*}}}  */
@@ -1534,7 +1540,7 @@ ATermAppl ATmakeApplArray(Symbol sym, ATerm args[])
                                    MAX_INLINE_ARITY+1 : arity, sym);
 
   PARK_SYMBOL(sym);
-  
+
   hnr = START(header);
   for (i=0; i<arity; i++)
     hnr = COMBINE(hnr, (HashNumber)(char*)args[i]);
@@ -1612,7 +1618,7 @@ ATermInt ATmakeInt(int val)
 
   assert((hnr & table_mask) == (hash_number((ATerm)cur, TERM_SIZE_INT) & table_mask));
 
-  return cur;  
+  return cur;
 }
 
 /*}}}  */
@@ -1624,7 +1630,7 @@ ATermInt ATmakeInt(int val)
 
 #define DOUBLEWORDSIZE (sizeof(double)/sizeof(MachineWord))
 union doublewords {
-  double      val; 
+  double      val;
   MachineWord word[DOUBLEWORDSIZE];
 };
 
@@ -1635,13 +1641,13 @@ ATermReal ATmakeReal(double val)
   HashNumber hnr;
   unsigned int i;
   union doublewords dw;
-  
+
   hnr = START(header);
   dw.val = val;
   for (i=0; i<DOUBLEWORDSIZE; i++)
     hnr = COMBINE(hnr, HN(dw.word[i]));
   hnr = FINISH(hnr);
-  
+
   cur = (ATermReal) hashtable[hnr & table_mask];
   while (cur && (!EQUAL_HEADER(cur->header,header)
                  || ATgetReal(cur) != val)) {
@@ -1718,17 +1724,17 @@ ATermList ATinsert(ATermList tail, ATerm el)
   HashNumber hnr;
   ATermList cur;
   unsigned int newLength = GET_LENGTH(tail->header) + 1;
-  
+
   if(HAS_ANNO(tail->header)) tail = (ATermList) ATremoveAnnotations((ATerm) tail);
-  
+
   /* If length exceeds the maximum length that can be stored in the header,
      store MAX_LENGTH-1 in the header. ATgetLength will then count the length of the
      list instead of using on the header
   */
   if (newLength >= MAX_LENGTH) newLength = MAX_LENGTH - 1;
-  
+
   header = LIST_HEADER(0, newLength);
-  
+
   CHECK_TERM((ATerm) tail);
   CHECK_TERM(el);
 
@@ -1747,7 +1753,7 @@ ATermList ATinsert(ATermList tail, ATerm el)
   if (!cur) {
     cur = (ATermList) AT_allocate(TERM_SIZE_LIST);
     /* Hashtable might be resized, so delay masking until after AT_allocate */
-    hnr &= table_mask; 
+    hnr &= table_mask;
     cur->header = header;
     CHECK_HEADER(cur->header);
     ATgetFirst(cur) = el;
@@ -1908,14 +1914,14 @@ ATerm AT_setAnnotations(ATerm t, ATerm annos)
     cur->header = header;
     SET_AGE(cur->header,YOUNG_AGE);
     CHECK_HEADER(cur->header);
-    
+
     cur->aterm.next = hashtable[hnr];
     hashtable[hnr] = cur;
 
     for (i=ARG_OFFSET; i<size; i++) {
       cur->subaterm[i] = t->subaterm[i];
     }
-    
+
     cur->subaterm[size] = annos;
   }
 
@@ -2012,15 +2018,15 @@ ATermAppl ATsetArgument(ATermAppl appl, ATerm arg, unsigned int n)
 
   hnr = START(appl->header);
   for (i=0; i<arity; i++) {
-    if (i!=n) 
+    if (i!=n)
       hnr = COMBINE(hnr, (HashNumber)(char*)ATgetArgument(appl, i));
     else
       hnr = COMBINE(hnr, (HashNumber)(char*)arg);
   }
-  
+
   if (annos)
     hnr = COMBINE(hnr, (HashNumber)(char*)annos);
-    
+
   hnr = FINISH(hnr);
 
   cur = (ATermAppl) hashtable[hnr & table_mask];
@@ -2093,7 +2099,7 @@ ATermList ATmakeList(unsigned int n, ...)
   for (i=n; i>0; i--) {
     l = ATinsert(l, elems[i-1]);
   }
-  
+
   AT_free_protected(elems);
 
   return l;
@@ -2227,8 +2233,8 @@ ATbool AT_isValidTerm(ATerm term)
   int offset = 0;
 
   assert(block_table[idx].first_after == block_table[(idx+1)%BLOCK_TABLE_SIZE].first_before);
-  
-  for(cur=block_table[idx].first_after; cur; cur=cur->next_after) 
+
+  for(cur=block_table[idx].first_after; cur; cur=cur->next_after)
   {
     if(cur->size) {
       assert(cur->next_before == cur->next_after);
@@ -2242,7 +2248,7 @@ ATbool AT_isValidTerm(ATerm term)
 
   if(!inblock)
   {
-    for(cur=block_table[idx].first_before; cur; cur=cur->next_before) 
+    for(cur=block_table[idx].first_before; cur; cur=cur->next_before)
     {
       if(cur->size) {
         assert(cur->next_before == cur->next_after);
@@ -2289,7 +2295,7 @@ ATerm AT_isInsideValidTerm(ATerm term)
   ATbool inblock = ATfalse;
   int idx = ADDR_TO_BLOCK_IDX(term);
   int type;
-  
+
   assert(block_table[idx].first_after == block_table[(idx+1)%BLOCK_TABLE_SIZE].first_before);
 
     /* Warning: symboles*/
@@ -2307,43 +2313,43 @@ ATerm AT_isInsideValidTerm(ATerm term)
         end = ti->top_at_blocks;
       }
 
-      if(cur->data <= (header_type*)term && (header_type*)term < end) { 
+      if(cur->data <= (header_type*)term && (header_type*)term < end) {
         inblock = ATtrue;
         break;
       }
     }
   }
-  
+
   if(!inblock) {
     for(cur=block_table[idx].first_before; cur; cur=cur->next_before) {
       header_type *end;
       if(cur->size) {
         ti = &terminfo[cur->size];
         assert(cur->next_before == cur->next_after);
-        
+
         if(cur != ti->at_blocks[AT_BLOCK]) {
           end = cur->end;
         } else {
           assert(ti->at_blocks[AT_BLOCK] != NULL);
           end = ti->top_at_blocks;
         }
-        
-        if(cur->data <= (header_type*)term && (header_type*)term < end) { 
+
+        if(cur->data <= (header_type*)term && (header_type*)term < end) {
           inblock = ATtrue;
           break;
         }
       }
     }
   }
-  
+
   if(!inblock) {
       /*fprintf(stderr, "not in block: %p\n", term);*/
     return NULL;
   }
 
 
-  term = (ATerm)(((char*)term)-(((char*)term-((char*)cur->data))%(cur->size*sizeof(header_type)))); 
-  
+  term = (ATerm)(((char*)term)-(((char*)term-((char*)cur->data))%(cur->size*sizeof(header_type))));
+
   type = GET_TYPE(term->header);
 
     /* The only possibility left for an invalid term is AT_FREE */
@@ -2402,7 +2408,7 @@ void AT_printAllTerms(FILE *file)
     while(cur) {
       ATfprintf(file, "%t\n", cur);
         /*fprintf(file, "sym = %s\n",ATgetName(ATgetAFun(cur)));*/
-      
+
       cur = cur->aterm.next;
     }
   }

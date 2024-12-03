@@ -1,5 +1,3 @@
-/*{{{  includes */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,33 +7,17 @@
 #include "aterm2.h"
 #include "debug.h"
 
-/*}}}  */
-/*{{{  defines */
-
 #define MAGIC_K	1999
-
-/*}}}  */
-/*{{{  variables */
-
-char list_id[] = "$Id: list.c 23071 2007-07-02 10:06:17Z eriks $";
-
-/*}}}  */
-
-/*{{{  void AT_initList(int argc, char *argv[]) */
 
 /**
  * Initialize list operations
  */
-
 void AT_initList(int argc, char *argv[])
 {
   /* Suppress unused arguments warning */
   (void) argc;
   (void) argv;
 }
-
-/*}}}  */
-/*{{{  ATermList ATgetTail(ATermList list, int start) */
 
 ATermList ATgetTail(ATermList list, int start)
 {
@@ -51,9 +33,6 @@ ATermList ATgetTail(ATermList list, int start)
 
   return list;
 }
-
-/*}}}  */
-/*{{{  ATermList ATreplaceTail(ATermList list, ATermList newtail, int start) */
 
 ATermList ATreplaceTail(ATermList list, ATermList newtail, int startpos)
 {
@@ -80,7 +59,7 @@ ATermList ATreplaceTail(ATermList list, ATermList newtail, int startpos)
   for (i=start; i>0; i--) {
     newtail = ATinsert(newtail, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
 
   /* Preserve annotations */
@@ -92,29 +71,25 @@ ATermList ATreplaceTail(ATermList list, ATermList newtail, int startpos)
   return newtail;
 }
 
-/*}}}  */
-/*{{{  ATermList ATgetPrefix(ATermList list) */
-
 /**
  * Build a new list containing all elements of list, except the last one.
  */
-
 ATermList ATgetPrefix(ATermList list)
 {
   ATerm* buffer;
   unsigned int i, size = ATgetLength(list);
   ATermList result = ATmakeList0();
-  
+
   if (size<=1)
      return result;
-     
+
   size -= 1;
-  
+
   buffer = AT_alloc_protected(size);
   if (!buffer) {
     ATerror("ATgetPrefix: out of memory");
   }
-  
+
   for(i=0; i<size; i++) {
     buffer[i] = ATgetFirst(list);
     list = ATgetNext(list);
@@ -123,20 +98,16 @@ ATermList ATgetPrefix(ATermList list)
   for(i=size; i>0; i--) {
     result = ATinsert(result, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
 
   return result;
 }
 
-/*}}}  */
-/*{{{  ATerm ATgetLast(ATermList list) */
-
 /**
  * Retrieve the last element of 'list'.
  * When 'list' is the empty list, NULL is returned.
  */
-
 ATerm ATgetLast(ATermList list)
 {
   ATermList old = ATempty;
@@ -148,26 +119,22 @@ ATerm ATgetLast(ATermList list)
   return ATgetFirst(old);
 }
 
-/*}}}  */
-/*{{{  ATermList ATgetSlice(ATermList list, unsigned int start, unsigned int end) */
-
 /**
  * Retrieve a slice of elements from list.
  * The first element in the slice is the element at position start.
  * The last element is the element at end-1.
  */
-
 ATermList ATgetSlice(ATermList list, unsigned int start, unsigned int end)
 {
   ATerm* buffer;
   unsigned int i, size;
   ATermList result = ATmakeList0();
- 
+
   if (end<=start)
     return result;
-  
+
   size = end-start;
-  
+
   buffer = AT_alloc_protected(size);
   if (!buffer) {
     ATerror("ATgetSlice: out of memory");
@@ -184,25 +151,21 @@ ATermList ATgetSlice(ATermList list, unsigned int start, unsigned int end)
   for(i=size; i>0; i--) {
     result = ATinsert(result, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
-  
+
   return result;
 }
-
-/*}}}  */
-/*{{{  ATermList ATinsertAt(ATermList list, ATerm el, unsigned int index) */
 
 /**
  * Insert 'el' at position 'index' in 'list'.
  */
-
 ATermList ATinsertAt(ATermList list, ATerm el, unsigned int index)
 {
   ATerm* buffer;
   unsigned int i;
   ATermList result;
-  
+
   buffer = AT_alloc_protected(index);
   if (!buffer) {
     ATerror("ATinsertAt: out of memory");
@@ -221,25 +184,21 @@ ATermList ATinsertAt(ATermList list, ATerm el, unsigned int index)
   for(i=index; i>0; i--) {
     result = ATinsert(result, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
 
   return result;
 }
 
-/*}}}  */
-/*{{{  ATermlist ATappend(ATermList list, ATerm el) */
-
 /**
  * Append 'el' to the end of 'list'
  */
-
 ATermList ATappend(ATermList list, ATerm el)
 {
   ATerm* buffer;
   unsigned int i, len = ATgetLength(list);
   ATermList result;
-  
+
   buffer = AT_alloc_protected(len);
   if (!buffer) {
     ATerror("ATappend: out of memory");
@@ -257,19 +216,15 @@ ATermList ATappend(ATermList list, ATerm el)
   for(i=len; i>0; i--) {
     result = ATinsert(result, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
-  
+
   return result;
 }
-
-/*}}}  */
-/*{{{  ATermList ATconcat(ATermList list1, ATermList list2) */
 
 /**
  * Concatenate list2 to the end of list1.
  */
-
 ATermList ATconcat(ATermList list1, ATermList list2)
 {
   ATerm* buffer;
@@ -296,14 +251,11 @@ ATermList ATconcat(ATermList list1, ATermList list2)
   for(i=len; i>0; i--) {
     result = ATinsert(result, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
-  
+
   return result;
 }
-
-/*}}}  */
-/*{{{  int ATindexOf(ATermList list, ATerm el, int start) */
 
 /**
  * Return the index of the first occurence of 'el' in 'list',
@@ -311,7 +263,6 @@ ATermList ATconcat(ATermList list1, ATermList list2)
  * Return -1 when 'el' is not present after 'start'.
  * Note that 'start' must indicate a valid position in 'list'.
  */
-
 int ATindexOf(ATermList list, ATerm el, int startpos)
 {
   unsigned int i, start;
@@ -332,15 +283,11 @@ int ATindexOf(ATermList list, ATerm el, int startpos)
   return (ATisEmpty(list) ? -1 : (int)i);
 }
 
-/*}}}  */
-/*{{{  int ATlastIndexOf(ATermList list, ATerm el, int start) */
-
 /**
  * Search backwards for 'el' in 'list'. Start searching at
  * index 'start'. Return the index of the first occurence of 'l'
  * encountered, or -1 when 'el' is not present before 'start'.
  */
-
 int ATlastIndexOf(ATermList list, ATerm el, int startpos)
 {
   ATerm* buffer;
@@ -350,7 +297,7 @@ int ATlastIndexOf(ATermList list, ATerm el, int startpos)
     start = startpos + ATgetLength(list);
   else
     start = startpos;
-    
+
   len = start+1;
 
   buffer = AT_alloc_protected(len);
@@ -369,20 +316,16 @@ int ATlastIndexOf(ATermList list, ATerm el, int startpos)
       return i-1;
     }
   }
-  
+
   AT_free_protected(buffer);
 
   return -1;
 }
 
-/*}}}  */
-/*{{{  ATerm ATelementAt(ATermList list, int index) */
-
 /**
  * Retrieve the element at 'index' from 'list'.
  * Return NULL when index not in list.
  */
-
 ATerm ATelementAt(ATermList list, unsigned int index)
 {
   for(; index > 0 && !ATisEmpty(list); index--)
@@ -394,20 +337,16 @@ ATerm ATelementAt(ATermList list, unsigned int index)
   return ATgetFirst(list);
 }
 
-/*}}}  */
-/*{{{  ATermList ATremoveElement(ATermList list, ATerm el) */
-
 /**
  * Remove one occurence of an element from a list.
  */
-
 ATermList ATremoveElement(ATermList list, ATerm t)
 {
   ATerm* buffer;
   unsigned int i = 0;
   ATerm el = NULL;
   ATermList l = list;
-  
+
   buffer = AT_alloc_protected_minmax(0, ATgetLength(list));
   if (!buffer) {
     ATerror("ATremoveElement: out of memory");
@@ -432,29 +371,25 @@ ATermList ATremoveElement(ATermList list, ATerm t)
 
   list = l; /* Skip element to be removed */
 
-  /* We found the element. Add all elements prior to this 
+  /* We found the element. Add all elements prior to this
      one to the tail of the list. */
   for(i-=1; i>0; i--) {
     list = ATinsert(list, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
-  
+
   return list;
 }
-
-/*}}}  */
-/*{{{  ATermList ATremoveElementAt(ATermList list, int idx) */
 
 /**
  * Remove an element from a specific position in a list.
  */
-
 ATermList ATremoveElementAt(ATermList list, unsigned int idx)
 {
   ATerm* buffer;
   unsigned int i;
-  
+
   buffer = AT_alloc_protected(idx);
   if (!buffer) {
     ATerror("ATremoveElementAt: out of memory");
@@ -469,19 +404,15 @@ ATermList ATremoveElementAt(ATermList list, unsigned int idx)
   for(i=idx; i>0; i--) {
     list = ATinsert(list, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
-  
+
   return list;
 }
-
-/*}}}  */
-/*{{{  ATermList ATremoveAll(ATermList list, ATerm t) */
 
 /**
  * Remove all occurences of an element from a list
  */
-
 ATermList ATremoveAll(ATermList list, ATerm t)
 {
   ATerm* buffer;
@@ -524,18 +455,14 @@ ATermList ATremoveAll(ATermList list, ATerm t)
   return result;
 }
 
-/*}}}  */
-/*{{{  ATermList ATreplace(ATermList list, ATerm el, int idx) */
-
 /**
  * Replace one element of a list.
  */
-
 ATermList ATreplace(ATermList list, ATerm el, unsigned int idx)
 {
   ATerm* buffer;
   unsigned int i;
-  
+
   buffer = AT_alloc_protected(idx);
   if (!buffer) {
     ATerror("ATreplace: out of memory");
@@ -553,19 +480,15 @@ ATermList ATreplace(ATermList list, ATerm el, unsigned int idx)
   for(i=idx; i>0; i--) {
     list = ATinsert(list, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
-  
+
   return list;
 }
-
-/*}}}  */
-/*{{{  ATermList ATreverse(ATermList list) */
 
 /**
  * Reverse a list
  */
-
 ATermList ATreverse(ATermList list)
 {
   ATermList result = ATempty;
@@ -578,12 +501,7 @@ ATermList ATreverse(ATermList list)
   return result;
 }
 
-/*}}}  */
-
-/*{{{  ATermList ATsort(ATermList list, int (*compare)(const ATerm t1, const ATerm t2)) */
-
 static int (*compare_func)(const ATerm t1, const ATerm t2);
-
 static int compare_terms(const ATerm *t1, const ATerm *t2)
 {
   return compare_func(*t1, *t2);
@@ -613,32 +531,24 @@ ATermList ATsort(ATermList list, int (*compare)(const ATerm t1, const ATerm t2))
   for (idx=len; idx>0; idx--) {
     list = ATinsert(list, buffer[idx-1]);
   }
-  
+
   AT_free_protected(buffer);
-  
+
   return list;
 }
-
-/*}}}  */
-/*{{{  ATerm ATdictCreate() */
 
 /**
  * Create a new dictionary.
  */
-
 ATerm ATdictCreate()
 {
   return (ATerm)ATempty;
 }
 
-/*}}}  */
-/*{{{  ATerm ATdictPut(ATerm dict, ATerm key, ATerm value) */
-
 /**
  * Set an element of a 'dictionary list'. This is a list consisting
  * of [key,value] pairs.
  */
-
 ATerm ATdictPut(ATerm dict, ATerm key, ATerm value)
 {
   ATerm* buffer;
@@ -671,7 +581,7 @@ ATerm ATdictPut(ATerm dict, ATerm key, ATerm value)
       buffer[i++] = (ATerm)pair;
     }
   }
-  
+
   AT_free_protected(buffer);
 
   /* The key is not in the dictionary */
@@ -679,13 +589,9 @@ ATerm ATdictPut(ATerm dict, ATerm key, ATerm value)
   return (ATerm)ATinsert((ATermList)dict, (ATerm)pair);
 }
 
-/*}}}  */
-/*{{{  ATerm ATdictGet(ATerm dict, ATerm key) */
-
 /**
  * Retrieve a value from a dictionary list.
  */
-
 ATerm ATdictGet(ATerm dict, ATerm key)
 {
   ATermList pair;
@@ -705,13 +611,9 @@ ATerm ATdictGet(ATerm dict, ATerm key)
   return NULL;
 }
 
-/*}}}  */
-/*{{{  ATerm ATdictRemove(ATerm dict, ATerm key) */
-
 /**
  * Remove a [key,value] pair from a dictionary list.
  */
-
 ATerm ATdictRemove(ATerm dict, ATerm key)
 {
   unsigned int idx = 0;
@@ -732,13 +634,9 @@ ATerm ATdictRemove(ATerm dict, ATerm key)
   return dict;
 }
 
-/*}}}  */
-/*{{{  ATermList ATfilter(ATermList list, ATbool (*predicate)(ATerm)) */
-
 /**
  * Filter elements from a list.
  */
-
 ATermList ATfilter(ATermList list, ATbool (*predicate)(ATerm))
 {
   ATerm* buffer;
@@ -768,7 +666,7 @@ ATermList ATfilter(ATermList list, ATbool (*predicate)(ATerm))
   }
 
   if(!found) {
-    AT_free_protected(buffer); 
+    AT_free_protected(buffer);
     return list;
   }
 
@@ -778,20 +676,15 @@ ATermList ATfilter(ATermList list, ATbool (*predicate)(ATerm))
     i--;
   }
 
-  AT_free_protected(buffer); 
-  
+  AT_free_protected(buffer);
+
   return result;
 }
-
-/*}}}  */
-
-/*{{{  ATermList ATgetArguments(ATermAppl appl) */
 
 /**
  * Retrieve the list of arguments of a function application.
  * This function facilitates porting of old aterm-lib or ToolBus code.
  */
-
 ATermList ATgetArguments(ATermAppl appl)
 {
   ATerm* buffer;
@@ -810,39 +703,27 @@ ATermList ATgetArguments(ATermAppl appl)
   for(i=len; i>0; i--) {
     result = ATinsert(result, buffer[i-1]);
   }
-  
+
   AT_free_protected(buffer);
 
   return result;
 }
 
-/*}}}  */
-
-/*{{{  unsigned int ATgetLength(ATermList list) */
-
 unsigned int ATgetLength(ATermList list) {
   unsigned int length = ((unsigned int)GET_LENGTH((list)->header));
-  
+
   if (length < MAX_LENGTH-1)
     return length;
-    
+
   /* Length of the list exceeds the size that can be stored in the header
      Count the length of the list.
   */
-  
+
   while (1) {
     list = ATgetNext(list);
     if ((unsigned int)GET_LENGTH((list)->header) < (MAX_LENGTH-1)) break;
     length += 1;
   };
-  
+
   return length;
 }
-
-/*
-int     ATgetBlobSize(ATermBlob blob) {
-  return ((int)GET_LENGTH((blob)->header));
-}
-*/
-
-/*}}}  */

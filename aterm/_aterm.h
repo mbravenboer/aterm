@@ -8,6 +8,8 @@ extern "C"
 {
 #endif/* __cplusplus */
 
+#define _unused(x) ((void)(x))
+
 typedef struct ProtEntry
 {
 	struct ProtEntry *next;
@@ -45,6 +47,6 @@ unsigned long AT_calcAllocatedSize();
 
 #ifdef __cplusplus
 }
-#endif/* __cplusplus */ 
+#endif/* __cplusplus */
 
 #endif

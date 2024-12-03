@@ -230,7 +230,7 @@ static void generateSource(FILE *file, ATermList terms, ATermList afuns)
     for (col=0; col<ROW_LENGTH && index<len; col++) {
       fprintf(file, "0x%02X", data[index++]);
       if (index < len) {
-	fprintf(file, ",");
+	      fprintf(file, ",");
       }
     }
     fprintf(file, "\n");
@@ -245,7 +245,7 @@ static void generateSource(FILE *file, ATermList terms, ATermList afuns)
   ATfprintf(file, "{\n");
   ATfprintf(file, "  ATermList afuns, terms;\n\n");
 
-  ATfprintf(file, "  _%s = ATreadFromBinaryString(_%s_baf, _%s_LEN);\n", 
+  ATfprintf(file, "  _%s = ATreadFromBinaryString(_%s_baf, _%s_LEN);\n",
 	    code_prefix, code_prefix, code_prefix);
   ATfprintf(file, "  assert(_%s);\n\n", code_prefix);
   ATfprintf(file, "  ATprotect(&_%s);\n\n", code_prefix);

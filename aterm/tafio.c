@@ -64,7 +64,7 @@ static void resize_parse_buffer(int n)
   parse_buffer_size = n;
   parse_buffer = (char *) AT_realloc(parse_buffer, parse_buffer_size);
   if (!parse_buffer) {
-    ATerror("resize_parse_buffer(tafio.c): cannot allocate parse buffer of size %d\n", 
+    ATerror("resize_parse_buffer(tafio.c): cannot allocate parse buffer of size %d\n",
 	    parse_buffer_size);
   }
 }
@@ -97,10 +97,10 @@ static long write_abbrev(long abbrev, byte_writer *writer)
   char *ptr, buf[MAX_ENCODED_SIZE+1] ;
 
   write_byte('#', writer);
-  
+
   ptr = buf+MAX_ENCODED_SIZE;
   ptr[0] = '\0';
-  
+
   if (abbrev == 0) {
     *(--ptr) = TOBASE64(0);
   }
@@ -132,7 +132,7 @@ static int writeToSharedTextFile(ATerm t, byte_writer *writer, ATermIndexedSet a
   ATermBlob       blob;
 
   size = 0;
-  
+
   switch (ATgetType(t))
     {
     case AT_INT:
@@ -165,7 +165,7 @@ static int writeToSharedTextFile(ATerm t, byte_writer *writer, ATermIndexedSet a
       /*{{{  Print application */
 
       appl = (ATermAppl) t;
-				
+
       sym = ATgetSymbol(appl);
       elem_size = AT_writeAFun(sym, writer);
       if (elem_size < 0) {
@@ -208,7 +208,7 @@ static int writeToSharedTextFile(ATerm t, byte_writer *writer, ATermIndexedSet a
 	list = ATgetNext(list);
       }
       while(!ATisEmpty(list)) {
-	write_byte(',', writer);				
+	write_byte(',', writer);
 	size++;
 	elem_size = topWriteToSharedTextFile(ATgetFirst(list), writer, abbrevs);
 	if (elem_size < 0) {
@@ -285,7 +285,7 @@ static long topWriteToSharedTextFile(ATerm t, byte_writer *writer, ATermIndexedS
   if (abbrev >= 0) {
     return write_abbrev(abbrev, writer);
   }
- 
+
   if (ATgetType(t) == AT_LIST) {
     write_byte('[', writer);
 
@@ -324,7 +324,7 @@ static long topWriteToSharedTextFile(ATerm t, byte_writer *writer, ATermIndexedS
     assert(isnew);
     assert(abbrev == next_abbrev);
     next_abbrev++;
-  } 
+  }
 
   return size;
 }
@@ -338,7 +338,7 @@ long ATwriteToSharedTextFile(ATerm t, FILE *file)
   byte_writer writer;
   long size;
   ATermIndexedSet abbrevs;
-  
+
   writer.type = FILE_WRITER;
   writer.u.file_data = file;
 
@@ -350,7 +350,7 @@ long ATwriteToSharedTextFile(ATerm t, FILE *file)
   size = topWriteToSharedTextFile(t, &writer, abbrevs);
 
   ATindexedSetDestroy(abbrevs);
-  
+
   if (size < 0) {
     return -1;
   }
@@ -556,7 +556,7 @@ static ATerm rparse_quoted_appl(int *c, byte_reader *reader, ATermIndexedSet abb
   ATermList       args = ATempty;
   Symbol          sym;
   char           *name;
-  
+
   /* First parse the identifier */
   rnext_char(c, reader);
 
@@ -594,14 +594,14 @@ static ATerm rparse_quoted_appl(int *c, byte_reader *reader, ATermIndexedSet abb
     }
     rnext_char(c, reader);
   }
-  
+
   store_char('\0', len);
-  
+
   name = strdup(parse_buffer);
   if (!name) {
     ATerror("fparse_quoted_appl: symbol to long.");
   }
-	
+
   rnext_skip_layout(c, reader);
 
   /* Time to parse the arguments */
@@ -664,7 +664,7 @@ static ATermAppl rparse_unquoted_appl(int *c, byte_reader *reader, ATermIndexedS
 	return NULL;
       rnext_skip_layout(c, reader);
     }
-		
+
   /* Wrap up this function application */
   sym = ATmakeSymbol(name, ATgetLength(args), ATfalse);
   AT_free(name);
@@ -693,7 +693,7 @@ static ATerm rparse_num(int *c, byte_reader *reader)
   }
   if (*c == '.' || toupper(*c) == 'E') {
     /*{{{  A real number */
-    
+
     if (*c == '.') {
       *ptr++ = *c;
       rnext_char(c, reader);
@@ -716,7 +716,7 @@ static ATerm rparse_num(int *c, byte_reader *reader)
     }
     *ptr = '\0';
     return (ATerm) ATmakeReal(atof(num));
-    
+
     /*}}}  */
   } else {
     /*{{{  An integer */
@@ -741,7 +741,7 @@ static ATerm rparse_abbrev(int *c, byte_reader *reader, ATermIndexedSet abbrevs)
   abbrev = 0;
   while (ISBASE64(*c)) {
     abbrev *= 64;
-    if (*c >= 'A' && *c <= 'Z') { 
+    if (*c >= 'A' && *c <= 'Z') {
      abbrev += *c - 'A';
     } else if (*c >= 'a' && *c <= 'z') {
       abbrev += *c - 'a' + 26;
@@ -815,41 +815,41 @@ static ATerm rparse_term(int *c, byte_reader *reader, ATermIndexedSet abbrevs)
 
     default:
       if (isalpha(*c) || *c == '(') {
-	result = (ATerm) rparse_unquoted_appl(c, reader, abbrevs);
+        result = (ATerm) rparse_unquoted_appl(c, reader, abbrevs);
       } else if (isdigit(*c)) {
-	result = rparse_num(c, reader);
+        result = rparse_num(c, reader);
       } else if (*c == '.' || *c == '-') {
-	result = rparse_num(c, reader);
+        result = rparse_num(c, reader);
       } else {
-	result = NULL;
+        result = NULL;
       }
     }
 
   if(result != NULL) {
     rskip_layout(c, reader);
-			
+
     if (*c == '{') {
       /* Term is annotated */
       rnext_skip_layout(c, reader);
       if (*c != '}') {
-	ATerm annos = (ATerm) rparse_terms(c, reader, abbrevs);
-	if (annos == NULL || *c != '}') {
-	  return NULL;
-	}
-	result = AT_setAnnotations(result, annos);
+	      ATerm annos = (ATerm) rparse_terms(c, reader, abbrevs);
+	      if (annos == NULL || *c != '}') {
+	        return NULL;
+	      }
+	      result = AT_setAnnotations(result, annos);
       }
       rnext_skip_layout(c, reader);
     }
     /*{{{  Parse backwards compatible toolbus anomalies */
-    
+
     if (*c == ':') {
       ATerm type;
       rnext_skip_layout(c, reader);
       type = rparse_term(c, reader, abbrevs);
       if (type != NULL) {
-	result = ATsetAnnotation(result, ATparse("type"), type);
+	      result = ATsetAnnotation(result, ATparse("type"), type);
       } else {
-	return NULL;
+	      return NULL;
       }
     }
 
@@ -865,12 +865,13 @@ static ATerm rparse_term(int *c, byte_reader *reader, ATermIndexedSet abbrevs)
     if (abbrev_size(next_abbrev) < (end-start)) {
       ATbool isnew;
       long abbrev;
+      _unused( abbrev ); // only used in assert
 
       abbrev = ATindexedSetPut(abbrevs, result, &isnew);
       if (isnew) {
-	/*ATfprintf(stderr, "%5d: %t\n", abbrev, result);*/
-	assert(abbrev == next_abbrev);
-	next_abbrev++;
+      	/*ATfprintf(stderr, "%5d: %t\n", abbrev, result);*/
+	      assert(abbrev == next_abbrev);
+	      next_abbrev++;
       }
     }
   }
@@ -890,14 +891,14 @@ static ATerm readFromSharedText(int *c, byte_reader *reader, ATermIndexedSet abb
   ATerm term;
 
   rskip_layout(c, reader);
-		
+
   term = rparse_term(c, reader, abbrevs);
 
   if (!term) {
     ATwarning("readFromSharedText: parse error at line %d, col %d\n",
 	      line, col);
   }
-		
+
   return term;
 }
 
@@ -914,7 +915,7 @@ ATerm AT_readFromSharedTextFile(int *c, FILE *f)
   *c = fgetc(f);
 
   init_file_reader(&reader, f);
-  
+
   abbrevs = ATindexedSetCreate(1024, 75);
   next_abbrev = 0;
 
@@ -986,7 +987,7 @@ ATerm ATreadFromSharedString(const char *s, int size)
   next_abbrev = 0;
 
   rnext_char(&c, &reader);
-  
+
   result = readFromSharedText(&c, &reader, abbrevs);
 
   ATindexedSetDestroy(abbrevs);
