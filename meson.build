@@ -3,6 +3,7 @@ project('aterm', 'c',
   license : 'BSD')
 
 subdir('src')
+subdir('test')
 
 pkg_mod = import('pkgconfig')
 

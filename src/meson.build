@@ -24,7 +24,7 @@ sources = files(
     'version.c',
     'idmappings.c')
 
-include_dirs = [include_directories('.')]
+aterm_include_dirs = [include_directories('.')]
 
 public_headers = files(
   'abool.h',
@@ -40,7 +40,7 @@ public_headers = files(
 aterm_library = library(
   'aterm',
   sources,
-  include_directories : include_dirs,
+  include_directories : aterm_include_dirs,
   install: true)
 
 # PRIVATE_INCL = \

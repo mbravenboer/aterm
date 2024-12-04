@@ -463,7 +463,7 @@ void
 testRead(void)
 {
   ATerm t;
-  FILE *f = fopen(SRCDIR "test.trms", "rb");
+  FILE *f = fopen("../test/test.trms", "rb");
   if(!f)
     ATerror("cannot open file \"test.trms\"");
 
@@ -497,7 +497,7 @@ testRead(void)
   parse_error_encountered = ATfalse;
 #endif
   fprintf(stderr, "Next term should give a parse error at line 0, col 17\n");
-  f = fopen(SRCDIR "error.trm", "rb");
+  f = fopen("../test/error.trm", "rb");
   t = ATreadFromTextFile(f);
   fclose(f);
 #ifdef ABORT_ON_PARSE_ERROR
