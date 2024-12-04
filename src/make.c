@@ -586,7 +586,7 @@ static ATbool matchPlaceholder(ATerm t, ATermPlaceholder pat)
       	int *iarg = va_arg(*args, int *);
 	      if(iarg)
 	        *iarg = ATgetInt((ATermInt)t);
-	        return ATtrue;
+        return ATtrue;
       }
       return ATfalse;
 

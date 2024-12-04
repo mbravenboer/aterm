@@ -11,46 +11,36 @@ extern "C"
 {
 #endif/* __cplusplus */
 
-#if SIZEOF_LONG > 4
-#define AT_64BIT
-#endif
+_Static_assert((sizeof(long) == 8), "Size of long is unexpected");
+_Static_assert((sizeof(int) == 4), "Size of int is unexpected");
+_Static_assert((sizeof(long) == sizeof(void*)), "Size of void* is unexpected");
 
-#if SIZEOF_LONG != SIZEOF_VOID_P
-#error Size of long is not the same as the size of a pointer
-#endif
-
-#if SIZEOF_INT > 4
-#error Size of int is not 32 bits
-#endif
+// TODO find better way to define this (used to be AC_CHECK_ALIGNOF)
+#define ALIGNOF_VOID_P 8
 
 /*
  32-bit:
-  
+
  |---------------------------------|
  | info|arity| type|quoted|mark|age|
  |---------------------------------|
   31 10 9 8 7 6 5 4   3     2   1 0
-  
+
  64-bit:
 
  |------------------------------------|
  | info|  |arity| type|quoted|mark|age|
  |------------------------------------|
   63 34 15 14  7 6 5 4   3     2   1 0
-  
+
 */
 
 typedef unsigned long header_type;
 
-#define HEADER_BITS      (SIZEOF_LONG*8)
+#define HEADER_BITS      (sizeof(long) * 8)
 
-#ifdef AT_64BIT
 #define SHIFT_LENGTH     34
 #define ARITY_BITS       8
-#else
-#define SHIFT_LENGTH     10
-#define ARITY_BITS       3
-#endif /* AT_64BIT */
 
 #define TYPE_BITS        3
 #define LENGTH_BITS      (HEADER_BITS - SHIFT_LENGTH)
@@ -95,13 +85,13 @@ typedef unsigned long header_type;
 #define SHIFT_SYMBOL  SHIFT_LENGTH
 #define SHIFT_SYM_ARITY SHIFT_LENGTH
 
-#define TERM_SIZE_APPL(arity) ((sizeof(struct __ATerm)/SIZEOF_LONG)+arity)
-#define TERM_SIZE_INT         (sizeof(struct __ATermInt)/SIZEOF_LONG)
-#define TERM_SIZE_REAL        (sizeof(struct __ATermReal)/SIZEOF_LONG)
-#define TERM_SIZE_BLOB        (sizeof(struct __ATermBlob)/SIZEOF_LONG)
-#define TERM_SIZE_LIST        (sizeof(struct __ATermList)/SIZEOF_LONG)
-#define TERM_SIZE_PLACEHOLDER (sizeof(struct __ATermPlaceholder)/SIZEOF_LONG)
-#define TERM_SIZE_SYMBOL      (sizeof(struct _SymEntry)/SIZEOF_LONG)
+#define TERM_SIZE_APPL(arity) ((sizeof(struct __ATerm) / sizeof(long)) + arity)
+#define TERM_SIZE_INT         (sizeof(struct __ATermInt) / sizeof(long))
+#define TERM_SIZE_REAL        (sizeof(struct __ATermReal) / sizeof(long))
+#define TERM_SIZE_BLOB        (sizeof(struct __ATermBlob) / sizeof(long))
+#define TERM_SIZE_LIST        (sizeof(struct __ATermList) / sizeof(long))
+#define TERM_SIZE_PLACEHOLDER (sizeof(struct __ATermPlaceholder) / sizeof(long))
+#define TERM_SIZE_SYMBOL      (sizeof(struct _SymEntry) / sizeof(long))
 
 #define IS_MARKED(h)          ((h) & MASK_MARK)
 #define GET_TYPE(h)           ((unsigned int)(((h) & MASK_TYPE) >> SHIFT_TYPE))
@@ -121,7 +111,7 @@ typedef unsigned long header_type;
                               } while (0)
 #define SET_LENGTH(h, len)    do { (h) = ((h) & ~MASK_LENGTH) | \
                                      | (((header_type)(len)) << SHIFT_LENGTH); \
-                              } while (0) 
+                              } while (0)
 #define SET_QUOTED(h)         do { (h) |= MASK_QUOTED; } while (0)
 
 #define CLR_MARK(h)           do { (h) &= ~MASK_MARK; } while (0)
@@ -192,6 +182,6 @@ typedef void (*ATermProtFunc)();
 
 #ifdef __cplusplus
 }
-#endif/* __cplusplus */ 
+#endif/* __cplusplus */
 
 #endif
