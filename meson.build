@@ -4,6 +4,7 @@ project('aterm', 'c',
   default_options : ['default_library=both'])
 
 subdir('src')
+subdir('utils')
 subdir('test')
 
 pkg_mod = import('pkgconfig')

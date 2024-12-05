@@ -10,6 +10,7 @@
 
 static char *code_prefix = NULL;
 static char *file_prefix = NULL;
+static char *file_name = NULL;
 
 /* should we output a generation-timestamp */
 static int opt_gen_date = 1;
@@ -124,7 +125,7 @@ static void generateSource(FILE *file, ATermList terms, ATermList afuns)
     fprintf(file, " */\n\n");
   }
 
-  fprintf(file, "#include \"%s.h\"\n\n", file_prefix);
+  fprintf(file, "#include \"%s.h\"\n\n", file_name);
 
   /*{{{  unzip term and afun lists */
 
@@ -341,6 +342,9 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[i], "-file-prefix") == 0) {
       file_prefix = argv[++i];
     }
+    else if (strcmp(argv[i], "-file-name") == 0) {
+      file_name = argv[++i];
+    }
   }
 
   if (dict_name == NULL) {
@@ -394,6 +398,10 @@ int main(int argc, char *argv[])
     }
     file_buf[index++] = '\0';
     file_prefix = file_buf;
+  }
+
+  if (file_name == NULL) {
+    file_name = file_prefix;
   }
 
   /*}}}  */
