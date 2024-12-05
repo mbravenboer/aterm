@@ -9,19 +9,19 @@ use with Stratego/XT.
 
 Current maintainer
 
-  Martin Bravenboer <martin.bravenboer@gmail.com>
+- Martin Bravenboer <martin.bravenboer@gmail.com>
 
 Original developers and maintainers (no longer contributing)
 
-  Pieter Olivier <olivierp@cwi.nl>
-  Hayco de Jong  <jong@cwi.nl>
-  Erik Scheffers (TU Eindhoven)
-  Arnold Lankamp (CWI)
-  Jurgen Vinju (CWI)
-  Jan-Friso Groote
+- Pieter Olivier <olivierp@cwi.nl>
+- Hayco de Jong  <jong@cwi.nl>
+- Erik Scheffers (TU Eindhoven)
+- Arnold Lankamp (CWI)
+- Jurgen Vinju (CWI)
+- Jan-Friso Groote
 
 Developers who helped revamp ATerm to 64-bits systems and modern compilers:
 
-  Armijn Hemel
-  Eelco Dolstra
-  Rob Vermaas
+- Armijn Hemel
+- Eelco Dolstra
+- Rob Vermaas
