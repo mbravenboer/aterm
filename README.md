@@ -13,8 +13,8 @@ Current maintainer
 
 Original developers and maintainers (no longer contributing)
 
-- Pieter Olivier <olivierp@cwi.nl>
-- Hayco de Jong  <jong@cwi.nl>
+- Pieter Olivier (CWI)
+- Hayco de Jong (CWI)
 - Erik Scheffers (TU Eindhoven)
 - Arnold Lankamp (CWI)
 - Jurgen Vinju (CWI)
