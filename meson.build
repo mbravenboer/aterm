@@ -1,6 +1,7 @@
 project('aterm', 'c',
   version : '25.01',
-  license : 'BSD')
+  license : 'BSD',
+  default_options : ['default_library=both'])
 
 subdir('src')
 subdir('test')
