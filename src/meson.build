@@ -1,10 +1,3 @@
-# lib_LTLIBRARIES = libATerm.la
-# include_HEADERS = $(PUBLIC_INCL)
-# noinst_HEADERS  = $(PRIVATE_INCL)
-
-# libATerm_la_SOURCES = $(ALLSRCS)
-# libATerm_la_CFLAGS = -DNDEBUG
-# libATerm_la_LDFLAGS = -avoid-version -no-undefined
 
 sources = files(
     'afun.c',
@@ -37,24 +30,11 @@ public_headers = files(
   'safio.h',
   'idmappings.h')
 
+install_headers(public_headers)
+
 aterm_library = library(
   'aterm',
   sources,
   include_directories : aterm_include_dirs,
+  link_args : ['-Wl,-no-undefined'],
   install: true)
-
-# PRIVATE_INCL = \
-#   _afun.h \
-#   _aterm.h \
-#   bafio.h \
-#   byteio.h \
-#   debug.h \
-#   gc.h \
-#   list.h \
-#   make.h \
-#   md5.h \
-#   memory.h \
-#   tafio.h \
-#   util.h \
-#   version.h \
-#   byteencoding.h
