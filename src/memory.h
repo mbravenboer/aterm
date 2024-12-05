@@ -18,13 +18,8 @@ extern "C"
 #define BLOCK_SIZE       (1<<BLOCK_SHIFT)
 #define BLOCK_TABLE_SIZE 4099     /* nextprime(4096) */
 
-#ifdef AT_64BIT 
 #define FOLD(w)         ((HN(w)) ^ (HN(w) >> 32))
 #define PTR_ALIGN_SHIFT	4
-#else
-#define FOLD(w)         (HN(w))
-#define PTR_ALIGN_SHIFT	2
-#endif
 
 #define ADDR_TO_BLOCK_IDX(a) \
 ((((HashNumber)(a))>>(BLOCK_SHIFT+PTR_ALIGN_SHIFT)) % BLOCK_TABLE_SIZE)
@@ -55,7 +50,7 @@ typedef struct BlockBucket
 
 #define AT_BLOCK      0
 #define AT_OLD_BLOCK  1
-  
+
 typedef struct TermInfo {
   Block*       at_blocks[2];
   header_type* top_at_blocks;
@@ -67,7 +62,7 @@ typedef struct TermInfo {
 } TermInfo;
 
 extern TermInfo *terminfo;
-  
+
 extern Block *at_freeblocklist;
 extern unsigned int at_freeblocklist_size;
 #define SIZE_TO_BYTES(size) ((size)*sizeof(header_type))
@@ -123,6 +118,6 @@ void AT_free_protected_blocks();
 
 #ifdef __cplusplus
 }
-#endif/* __cplusplus */ 
+#endif/* __cplusplus */
 
 #endif
