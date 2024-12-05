@@ -25,3 +25,7 @@ Developers who helped revamp ATerm to 64-bits systems and modern compilers:
 - Armijn Hemel
 - Eelco Dolstra
 - Rob Vermaas
+
+The original repository is https://github.com/cwi-swat/aterms . Unfortunately this
+repository appears to have lost the 64-bit changes, which is why this repository was
+recreated from a release tar.gz.
