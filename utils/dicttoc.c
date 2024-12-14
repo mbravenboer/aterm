@@ -12,6 +12,9 @@ static char *code_prefix = NULL;
 static char *file_prefix = NULL;
 static char *file_name = NULL;
 
+static char *path_source = NULL;
+static char *path_header = NULL;
+
 /* should we output a generation-timestamp */
 static int opt_gen_date = 1;
 
@@ -290,11 +293,6 @@ static void generateSource(FILE *file, ATermList terms, ATermList afuns)
 static void generateCode(ATermList terms, ATermList afuns)
 {
   FILE *source, *header;
-  char path_source[BUFSIZ];
-  char path_header[BUFSIZ];
-
-  sprintf(path_source, "%s.c", file_prefix);
-  sprintf(path_header, "%s.h", file_prefix);
 
   source = fopen(path_source, "wb");
   header = fopen(path_header, "wb");
@@ -345,6 +343,12 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[i], "-file-name") == 0) {
       file_name = argv[++i];
     }
+    else if (strcmp(argv[i], "-path-h") == 0) {
+      path_header = argv[++i];
+    }
+    else if (strcmp(argv[i], "-path-c") == 0) {
+      path_source = argv[++i];
+    }
   }
 
   if (dict_name == NULL) {
@@ -366,9 +370,9 @@ int main(int argc, char *argv[])
 
     for(; *ptr; ptr++) {
       if (!isalnum((int)*ptr)) {
-	code_buf[index++] = '_';
+	      code_buf[index++] = '_';
       } else {
-	code_buf[index++] = *ptr;
+	      code_buf[index++] = *ptr;
       }
     }
     code_buf[index++] = '\0';
@@ -391,13 +395,23 @@ int main(int argc, char *argv[])
 
     for(; *ptr; ptr++) {
       if (!isalnum((int)*ptr) && *ptr != '-') {
-	file_buf[index++] = '_';
+	      file_buf[index++] = '_';
       } else {
-	file_buf[index++] = *ptr;
+	      file_buf[index++] = *ptr;
       }
     }
     file_buf[index++] = '\0';
     file_prefix = file_buf;
+  }
+
+  if(path_header == NULL) {
+    path_header = malloc(strlen(file_prefix) + 3);
+    sprintf(path_header, "%s.h", file_prefix);
+  }
+
+  if(path_source == NULL) {
+    path_source = malloc(strlen(file_prefix) + 3);
+    sprintf(path_source, "%s.c", file_prefix);
   }
 
   if (file_name == NULL) {
