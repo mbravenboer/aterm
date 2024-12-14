@@ -30,7 +30,7 @@ public_headers = files(
   'safio.h',
   'idmappings.h')
 
-install_headers(public_headers, subdir: 'aterm')
+install_headers(public_headers)
 
 aterm_library = library(
   'aterm',

@@ -3,7 +3,7 @@
 set -e
 set -u
 
-prefix=/opt/stratego
+prefix=/opt/stratego/aterm
 builddir=build
 
 rm -rf $builddir
