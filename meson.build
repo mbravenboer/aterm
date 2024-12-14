@@ -13,4 +13,5 @@ pkg_mod.generate(libraries : aterm_library,
                  version : '25.01',
                  name : 'libaterm',
                  filebase : 'aterm',
+                 subdirs : ['aterm'],
                  description : 'ATerm Library')
