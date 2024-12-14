@@ -33,7 +33,7 @@ public_headers = files(
 install_headers(public_headers)
 
 aterm_library = library(
-  'aterm',
+  'ATerm',
   sources,
   include_directories : aterm_include_dirs,
   link_args : ['-Wl,-no-undefined'],
